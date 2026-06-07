@@ -1,0 +1,12 @@
+# dependencies / build artifacts (also covered by landing_page/.gitignore)
+node_modules/
+.next/
+out/
+build/
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+.env*.local
+.vercel

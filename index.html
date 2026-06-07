@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>loop — Unlimited Instagram Auto-DMs for ₹200/mo</title>
+  <meta name="description" content="Auto-send DMs when someone comments your keyword. Follow-gating + email capture built in. Flat ₹200/month. Unlimited comments, unlimited DMs. Stop being penalized for going viral." />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            ink: '#06060a',
+            panel: '#0c0c14',
+            accent: '#8b5cf6',
+            accent2: '#3b82f6',
+          },
+          keyframes: {
+            float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+            pop: { '0%': { opacity: '0', transform: 'translateY(8px) scale(.98)' }, '100%': { opacity: '1', transform: 'translateY(0) scale(1)' } },
+            pulseGlow: { '0%,100%': { opacity: '.35' }, '50%': { opacity: '.6' } },
+            shimmer: { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
+          },
+          animation: {
+            float: 'float 6s ease-in-out infinite',
+            pop: 'pop .6s cubic-bezier(.2,.7,.2,1) both',
+            pulseGlow: 'pulseGlow 5s ease-in-out infinite',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body { background: #06060a; }
+    /* Radial spotlight backdrop */
+    .bg-spotlight {
+      background:
+        radial-gradient(60% 50% at 50% 0%, rgba(139,92,246,.18), transparent 70%),
+        radial-gradient(40% 40% at 85% 15%, rgba(59,130,246,.14), transparent 70%),
+        radial-gradient(40% 40% at 10% 30%, rgba(139,92,246,.10), transparent 70%);
+    }
+    .grid-overlay {
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+    }
+    .text-grad {
+      background: linear-gradient(100deg, #fff 10%, #c4b5fd 55%, #93c5fd 90%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .card-glow { box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 30px 60px -20px rgba(139,92,246,.25); }
+    .border-soft { border-color: rgba(255,255,255,.08); }
+    .btn-glow { box-shadow: 0 8px 30px -6px rgba(139,92,246,.6); }
+    ::selection { background: rgba(139,92,246,.4); color: #fff; }
+    /* Marquee */
+    .marquee { mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+    .marquee-track { animation: scrollX 26s linear infinite; }
+    @keyframes scrollX { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+  </style>
+</head>
+
+<body class="bg-ink text-white/90 font-sans antialiased selection:text-white">
+
+  <!-- ============ NAV ============ -->
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-ink/70 border-b border-soft">
+    <nav class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+      <a href="#top" class="flex items-center gap-2.5 font-extrabold tracking-tight text-lg">
+        <span class="grid place-items-center h-8 w-8 rounded-lg bg-gradient-to-br from-accent to-accent2 btn-glow">
+          <svg viewBox="0 0 24 24" class="h-4.5 w-4.5" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="height:18px;width:18px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        loop
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-white/60">
+        <a href="#how" class="hover:text-white transition">How it works</a>
+        <a href="#pricing" class="hover:text-white transition">Pricing</a>
+        <a href="#features" class="hover:text-white transition">Features</a>
+      </div>
+      <a href="#waitlist" class="text-sm font-semibold px-4 py-2 rounded-lg bg-white text-ink hover:bg-white/90 transition">
+        Join the Waitlist
+      </a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- ============ HERO ============ -->
+    <section class="relative overflow-hidden bg-spotlight">
+      <div class="absolute inset-0 grid-overlay pointer-events-none"></div>
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 h-[420px] w-[820px] rounded-full bg-accent/20 blur-[140px] animate-pulseGlow pointer-events-none"></div>
+
+      <div class="relative max-w-7xl mx-auto px-5 sm:px-8 pt-20 pb-16 sm:pt-28 sm:pb-24 grid lg:grid-cols-12 gap-12 items-center">
+        <!-- Copy -->
+        <div class="lg:col-span-6 animate-pop">
+          <a href="#pricing" class="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full border border-soft bg-white/5 text-white/70 hover:bg-white/10 transition mb-7">
+            <span class="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse"></span>
+            Flat ₹200/mo — no scaling tiers, ever
+          </a>
+
+          <h1 class="text-[2.6rem] leading-[1.05] sm:text-6xl font-black tracking-tight">
+            <span class="text-grad">Unlimited DMs.</span><br/>
+            One flat <span class="text-grad">₹200</span> a month.
+          </h1>
+
+          <p class="mt-6 text-lg text-white/60 max-w-xl leading-relaxed">
+            Auto-send a DM with your link, code, or freebie the second someone comments your keyword.
+            Built-in <span class="text-white/90 font-medium">follow-gating</span> and
+            <span class="text-white/90 font-medium">email capture</span>.
+            Go viral without your bill going viral too.
+          </p>
+
+          <div class="mt-9 flex flex-col sm:flex-row gap-3">
+            <a href="#waitlist" class="group inline-flex items-center justify-center gap-2 font-semibold px-6 py-3.5 rounded-xl bg-gradient-to-r from-accent to-accent2 btn-glow hover:brightness-110 transition">
+              Get Early Access
+              <svg class="h-4 w-4 group-hover:translate-x-0.5 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a href="#how" class="inline-flex items-center justify-center gap-2 font-semibold px-6 py-3.5 rounded-xl border border-soft bg-white/5 hover:bg-white/10 transition">
+              See How It Works
+            </a>
+          </div>
+
+          <div class="mt-8 flex items-center gap-5 text-sm text-white/45">
+            <span class="flex items-center gap-2"><svg class="h-4 w-4 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>No card required</span>
+            <span class="flex items-center gap-2"><svg class="h-4 w-4 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Setup in 2 min</span>
+          </div>
+        </div>
+
+        <!-- Visual: comment -> DM mockup -->
+        <div class="lg:col-span-6 animate-pop" style="animation-delay:.1s">
+          <div class="relative mx-auto max-w-md">
+            <div class="absolute -inset-6 bg-gradient-to-tr from-accent/30 to-accent2/30 blur-3xl rounded-[2rem] animate-pulseGlow"></div>
+
+            <div class="relative rounded-3xl border border-soft bg-panel/80 backdrop-blur-xl p-5 card-glow animate-float">
+              <!-- comment row -->
+              <div class="rounded-2xl bg-white/[0.03] border border-soft p-4">
+                <p class="text-xs uppercase tracking-widest text-white/35 mb-3">New comment on your Reel</p>
+                <div class="flex items-start gap-3">
+                  <div class="h-9 w-9 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 shrink-0"></div>
+                  <div>
+                    <p class="text-sm"><span class="font-semibold">@creator_aanya</span> <span class="text-white/45">· 2s</span></p>
+                    <p class="text-sm mt-0.5">Omg I need this 🔥 <span class="px-1.5 py-0.5 rounded bg-accent/20 text-accent font-semibold">GUIDE</span></p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- arrow -->
+              <div class="flex justify-center my-3">
+                <div class="flex items-center gap-2 text-xs text-white/50 px-3 py-1.5 rounded-full bg-white/5 border border-soft">
+                  <span class="h-1.5 w-1.5 rounded-full bg-accent animate-pulse"></span> loop triggered · follow verified
+                </div>
+              </div>
+
+              <!-- DM row -->
+              <div class="rounded-2xl bg-gradient-to-br from-accent/10 to-accent2/10 border border-accent/20 p-4">
+                <p class="text-xs uppercase tracking-widest text-white/35 mb-3">Auto-DM sent ✓</p>
+                <div class="flex items-start gap-3">
+                  <div class="h-9 w-9 rounded-full bg-gradient-to-br from-accent to-accent2 shrink-0 grid place-items-center text-xs font-bold">You</div>
+                  <div class="text-sm leading-relaxed">
+                    Hey! Here's your free guide 🎁<br/>
+                    <span class="text-accent2 underline underline-offset-2">loop.link/guide</span>
+                    <div class="mt-2 inline-flex text-xs px-2.5 py-1 rounded-md bg-white/5 border border-soft text-white/60">+ email captured</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 flex items-center justify-between text-xs text-white/40">
+                <span>Delivered in <span class="text-white/80 font-semibold">0.8s</span></span>
+                <span class="text-green-400">● Unlimited today</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- trust marquee -->
+      <div class="relative border-y border-soft bg-white/[0.015]">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8 py-5 marquee overflow-hidden">
+          <div class="flex gap-12 w-max marquee-track text-sm text-white/35 font-medium whitespace-nowrap">
+            <!-- duplicated for seamless loop -->
+            <span>⚡ Instant delivery</span><span>🔒 Follow-gating</span><span>📧 Email capture</span><span>♾️ Unlimited DMs</span><span>📈 No volume penalties</span><span>🌍 India &amp; global</span>
+            <span>⚡ Instant delivery</span><span>🔒 Follow-gating</span><span>📧 Email capture</span><span>♾️ Unlimited DMs</span><span>📈 No volume penalties</span><span>🌍 India &amp; global</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PAIN POINT / COMPARISON ============ -->
+    <section id="pricing" class="relative max-w-7xl mx-auto px-5 sm:px-8 py-24">
+      <div class="text-center max-w-2xl mx-auto">
+        <p class="text-sm font-semibold text-accent tracking-wide uppercase">The math that's robbing you</p>
+        <h2 class="mt-3 text-3xl sm:text-5xl font-black tracking-tight text-grad">You shouldn't pay more for going viral.</h2>
+        <p class="mt-4 text-white/55 text-lg">Legacy tools charge by contacts. Every new follower who DMs you makes your bill bigger. We think that's backwards.</p>
+      </div>
+
+      <div class="mt-14 grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <!-- Old way -->
+        <div class="relative rounded-3xl border border-soft bg-panel/60 p-8 overflow-hidden">
+          <span class="text-xs font-semibold px-3 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">The Old Way</span>
+          <p class="mt-5 text-4xl font-black text-white/80">$100+<span class="text-lg font-medium text-white/40">/mo</span></p>
+          <p class="text-sm text-white/40 mt-1">…and climbing with every contact</p>
+          <ul class="mt-7 space-y-3.5 text-sm text-white/55">
+            <li class="flex gap-3"><span class="text-red-400/80 mt-0.5">✕</span> Priced per contact — viral = expensive</li>
+            <li class="flex gap-3"><span class="text-red-400/80 mt-0.5">✕</span> Confusing tiered upgrades</li>
+            <li class="flex gap-3"><span class="text-red-400/80 mt-0.5">✕</span> Surprise overage charges</li>
+            <li class="flex gap-3"><span class="text-red-400/80 mt-0.5">✕</span> You get punished for growth</li>
+          </ul>
+        </div>
+
+        <!-- Our way -->
+        <div class="relative rounded-3xl border border-accent/30 bg-gradient-to-br from-accent/10 to-accent2/5 p-8 overflow-hidden card-glow">
+          <div class="absolute -top-16 -right-10 h-40 w-40 rounded-full bg-accent/30 blur-3xl"></div>
+          <span class="text-xs font-semibold px-3 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">The loop Way</span>
+          <p class="mt-5 text-4xl font-black"><span class="text-grad">₹200</span><span class="text-lg font-medium text-white/40">/mo · ~$2.50</span></p>
+          <p class="text-sm text-white/50 mt-1">Flat. Forever. Whatever you scale to.</p>
+          <ul class="mt-7 space-y-3.5 text-sm text-white/75">
+            <li class="flex gap-3"><span class="text-green-400 mt-0.5">✓</span> Unlimited comments &amp; DMs</li>
+            <li class="flex gap-3"><span class="text-green-400 mt-0.5">✓</span> One price — zero tiers to decode</li>
+            <li class="flex gap-3"><span class="text-green-400 mt-0.5">✓</span> No volume-based penalties, ever</li>
+            <li class="flex gap-3"><span class="text-green-400 mt-0.5">✓</span> The more you grow, the more you save</li>
+          </ul>
+          <a href="#waitlist" class="mt-8 inline-flex w-full items-center justify-center font-semibold px-5 py-3 rounded-xl bg-gradient-to-r from-accent to-accent2 btn-glow hover:brightness-110 transition">Lock in ₹200/mo</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section id="how" class="relative max-w-7xl mx-auto px-5 sm:px-8 py-24 border-t border-soft">
+      <div class="text-center max-w-2xl mx-auto">
+        <p class="text-sm font-semibold text-accent tracking-wide uppercase">Live in under 2 minutes</p>
+        <h2 class="mt-3 text-3xl sm:text-5xl font-black tracking-tight">How it works</h2>
+      </div>
+      <div class="mt-14 grid md:grid-cols-3 gap-6">
+        <div class="rounded-3xl border border-soft bg-panel/50 p-8">
+          <div class="h-11 w-11 rounded-xl bg-white/5 border border-soft grid place-items-center text-accent font-black">1</div>
+          <h3 class="mt-5 text-xl font-bold">Pick a post &amp; keyword</h3>
+          <p class="mt-2 text-white/55 text-sm leading-relaxed">Choose any Reel or post and set a trigger word — like <span class="text-accent font-semibold">"GUIDE"</span> or <span class="text-accent font-semibold">"LINK"</span>.</p>
+        </div>
+        <div class="rounded-3xl border border-soft bg-panel/50 p-8">
+          <div class="h-11 w-11 rounded-xl bg-white/5 border border-soft grid place-items-center text-accent font-black">2</div>
+          <h3 class="mt-5 text-xl font-bold">Write your auto-DM</h3>
+          <p class="mt-2 text-white/55 text-sm leading-relaxed">Drop in your link, code, or freebie. Toggle follow-gating and email capture on with one click.</p>
+        </div>
+        <div class="rounded-3xl border border-soft bg-panel/50 p-8">
+          <div class="h-11 w-11 rounded-xl bg-white/5 border border-soft grid place-items-center text-accent font-black">3</div>
+          <h3 class="mt-5 text-xl font-bold">Go viral, stay flat</h3>
+          <p class="mt-2 text-white/55 text-sm leading-relaxed">Every keyword comment gets an instant DM — 10 or 10 million. Your price never moves.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FEATURES ============ -->
+    <section id="features" class="relative max-w-7xl mx-auto px-5 sm:px-8 py-24 border-t border-soft">
+      <div class="text-center max-w-2xl mx-auto">
+        <p class="text-sm font-semibold text-accent tracking-wide uppercase">Everything you need</p>
+        <h2 class="mt-3 text-3xl sm:text-5xl font-black tracking-tight text-grad">Built to turn comments into customers</h2>
+      </div>
+
+      <div class="mt-14 grid md:grid-cols-3 gap-6">
+        <!-- Feature 1 -->
+        <div class="group rounded-3xl border border-soft bg-panel/50 p-8 hover:border-accent/40 hover:bg-panel transition">
+          <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-accent to-accent2 btn-glow grid place-items-center">
+            <svg class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg>
+          </div>
+          <h3 class="mt-6 text-xl font-bold">Keyword Auto-DM</h3>
+          <p class="mt-2 text-white/55 text-sm leading-relaxed">Someone comments your magic word, they get your link in under a second. Zero manual replies, zero missed leads.</p>
+        </div>
+        <!-- Feature 2 -->
+        <div class="group rounded-3xl border border-soft bg-panel/50 p-8 hover:border-accent/40 hover:bg-panel transition">
+          <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-accent to-accent2 btn-glow grid place-items-center">
+            <svg class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m19 8 2 2 4-4"/></svg>
+          </div>
+          <h3 class="mt-6 text-xl font-bold">Follow-Gating</h3>
+          <p class="mt-2 text-white/55 text-sm leading-relaxed">Only deliver to people who follow you. Convert every viral moment into real follower growth — automatically.</p>
+        </div>
+        <!-- Feature 3 -->
+        <div class="group rounded-3xl border border-soft bg-panel/50 p-8 hover:border-accent/40 hover:bg-panel transition">
+          <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-accent to-accent2 btn-glow grid place-items-center">
+            <svg class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+          </div>
+          <h3 class="mt-6 text-xl font-bold">Flat-Rate Engine</h3>
+          <p class="mt-2 text-white/55 text-sm leading-relaxed">No contact limits. No usage tiers. No overage invoices. One honest price that never punishes you for winning.</p>
+        </div>
+      </div>
+
+      <!-- bonus: email capture feature strip -->
+      <div class="mt-6 rounded-3xl border border-soft bg-gradient-to-r from-panel/70 to-panel/30 p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+          <div class="h-12 w-12 rounded-2xl bg-white/5 border border-soft grid place-items-center">
+            <svg class="h-6 w-6 text-accent2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold">+ Email capture, baked in</h3>
+            <p class="text-white/55 text-sm">Every DM can collect an email — so you own your audience, not just rent it from the algorithm.</p>
+          </div>
+        </div>
+        <a href="#waitlist" class="shrink-0 text-sm font-semibold px-5 py-2.5 rounded-xl border border-soft bg-white/5 hover:bg-white/10 transition">Get it free at launch</a>
+      </div>
+    </section>
+
+    <!-- ============ WAITLIST ============ -->
+    <section id="waitlist" class="relative max-w-7xl mx-auto px-5 sm:px-8 py-24">
+      <div class="relative overflow-hidden rounded-[2rem] border border-accent/20 bg-gradient-to-br from-panel to-ink p-10 sm:p-16 text-center card-glow">
+        <div class="absolute -top-24 left-1/2 -translate-x-1/2 h-72 w-[600px] rounded-full bg-accent/25 blur-[120px] animate-pulseGlow pointer-events-none"></div>
+        <div class="relative">
+          <span class="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full border border-soft bg-white/5 text-white/70">
+            <span class="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse"></span> Early access · founding members get ₹200 locked for life
+          </span>
+          <h2 class="mt-6 text-3xl sm:text-5xl font-black tracking-tight text-grad">Stop being penalized for going viral.</h2>
+          <p class="mt-4 text-white/55 text-lg max-w-xl mx-auto">Join the waitlist and unlock flat-rate access before pricing changes. No card. No commitment.</p>
+
+          <form id="waitlist-form" class="mt-9 max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+            <input id="email" type="email" required placeholder="you@creator.com"
+              class="flex-1 px-5 py-3.5 rounded-xl bg-white/5 border border-soft placeholder-white/30 text-white outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 transition" />
+            <button type="submit"
+              class="font-semibold px-6 py-3.5 rounded-xl bg-gradient-to-r from-accent to-accent2 btn-glow hover:brightness-110 transition whitespace-nowrap">
+              Unlock Flat-Rate Access
+            </button>
+          </form>
+          <p id="form-msg" class="mt-4 text-sm text-green-400 h-5 transition-opacity opacity-0">🎉 You're on the list! We'll email your invite soon.</p>
+          <p class="mt-2 text-xs text-white/35">Join 1,200+ creators ditching contact-based pricing.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="border-t border-soft">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <a href="#top" class="flex items-center gap-2.5 font-extrabold tracking-tight">
+        <span class="grid place-items-center h-7 w-7 rounded-lg bg-gradient-to-br from-accent to-accent2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="height:15px;width:15px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        loop
+      </a>
+      <div class="flex items-center gap-6 text-sm text-white/45">
+        <a href="#features" class="hover:text-white transition">Features</a>
+        <a href="#pricing" class="hover:text-white transition">Pricing</a>
+        <a href="#waitlist" class="hover:text-white transition">Waitlist</a>
+      </div>
+      <p class="text-xs text-white/30">© 2026 loop. Built for creators who refuse to be taxed for growing.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Waitlist form (front-end demo — wire to your backend / form service)
+    const form = document.getElementById('waitlist-form');
+    const msg = document.getElementById('form-msg');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email');
+      if (!email.value) return;
+      // TODO: POST to your endpoint here
+      msg.classList.remove('opacity-0');
+      form.reset();
+      email.placeholder = 'See you inside ✨';
+      setTimeout(() => msg.classList.add('opacity-0'), 5000);
+    });
+  </script>
+</body>
+</html>

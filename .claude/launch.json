@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "loop-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "landing_page", "run", "dev"],
+      "port": 3000
+    }
+  ]
+}

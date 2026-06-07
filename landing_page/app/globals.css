@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: "Inter", sans-serif;
+  --font-serif: Georgia, serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: #fbfaf7;
+  color: #0a0a0a;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  /* Instagram gradient text — the one accent we lean on */
+  .text-gradient {
+    background-image: linear-gradient(
+      92deg,
+      #f58529 0%,
+      #dd2a7b 42%,
+      #8134af 74%,
+      #515bd4 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .bg-gradient-ig {
+    background-image: linear-gradient(
+      92deg,
+      #f58529 0%,
+      #dd2a7b 42%,
+      #8134af 74%,
+      #515bd4 100%
+    );
+  }
+
+  .serif-italic {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* subtle paper grain */
+  .grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .ring-soft {
+    box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04),
+      0 8px 24px -8px rgba(10, 10, 10, 0.12);
+  }
+
+  .ring-lift {
+    box-shadow: 0 1px 2px rgba(10, 10, 10, 0.05),
+      0 24px 60px -20px rgba(10, 10, 10, 0.22);
+  }
+}
+
+::selection {
+  background: #dd2a7b;
+  color: #fff;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* thin custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #fbfaf7;
+}
+::-webkit-scrollbar-thumb {
+  background: #e2ded6;
+  border-radius: 999px;
+  border: 3px solid #fbfaf7;
+}
