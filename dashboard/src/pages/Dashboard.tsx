@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, apiBaseUrl, type Session } from "../api/client";
+import { api, apiBaseUrl, type Rule, type Session } from "../api/client";
 import { Pill, type Tone } from "../components/Pill";
 import { ReconnectBanner } from "../components/ReconnectBanner";
+import { AutomationCard } from "../components/AutomationCard";
+import { RuleEditor } from "../components/RuleEditor";
 
 const statusTone: Record<NonNullable<Session["connection"]>["status"], Tone> = {
   connected: "good",
@@ -21,6 +23,8 @@ export function Dashboard() {
   const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [rules, setRules] = useState<Rule[] | null>(null);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -44,6 +48,19 @@ export function Dashboard() {
       active = false;
     };
   }, [navigate]);
+
+  const loadRules = useCallback(() => {
+    api
+      .GET("/rules")
+      .then(({ data, response }) => {
+        if (response.status === 200 && data) setRules(data.items);
+      })
+      .catch(() => setRules([]));
+  }, []);
+
+  useEffect(() => {
+    loadRules();
+  }, [loadRules]);
 
   const logout = async () => {
     await api.POST("/auth/logout");
@@ -90,11 +107,43 @@ export function Dashboard() {
           )}
         </section>
 
-        <section className="rounded-2xl border border-dashed border-neutral-300 bg-white p-10 text-center">
-          <p className="font-medium text-neutral-900">No automations yet</p>
-          <p className="mt-1 text-sm text-neutral-500">Create your first keyword → DM rule. Coming soon.</p>
+        <section className="rounded-2xl border border-neutral-200 bg-white p-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-neutral-500">Automations</h2>
+            <button
+              onClick={() => setEditing(true)}
+              className="rounded-lg bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-neutral-800"
+            >
+              New automation
+            </button>
+          </div>
+
+          {rules === null ? (
+            <p className="mt-4 text-sm text-neutral-500">Loading…</p>
+          ) : rules.length === 0 ? (
+            <div className="mt-4 rounded-xl border border-dashed border-neutral-300 p-8 text-center">
+              <p className="font-medium text-neutral-900">No automations yet</p>
+              <p className="mt-1 text-sm text-neutral-500">Create your first keyword → DM rule.</p>
+            </div>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {rules.map((rule) => (
+                <AutomationCard key={rule.id} rule={rule} onDeleted={loadRules} />
+              ))}
+            </div>
+          )}
         </section>
       </main>
+
+      {editing && (
+        <RuleEditor
+          onClose={() => setEditing(false)}
+          onCreated={() => {
+            setEditing(false);
+            loadRules();
+          }}
+        />
+      )}
     </div>
   );
 }

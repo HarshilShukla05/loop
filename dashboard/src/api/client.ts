@@ -3,6 +3,8 @@ import type { components, paths } from "./schema";
 
 export type Session = components["schemas"]["Session"];
 export type Connection = components["schemas"]["Connection"];
+export type Rule = components["schemas"]["Rule"];
+export type Media = components["schemas"]["Media"];
 
 export const apiBaseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 

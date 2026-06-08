@@ -79,6 +79,101 @@ paths:
         "204":
           description: Logged out
 
+  /media:
+    get:
+      operationId: media
+      summary: List the connected account's posts (for the rule picker)
+      responses:
+        "200":
+          description: Media list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Media"
+                required: [items]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /rules:
+    get:
+      operationId: listRules
+      summary: List automations
+      responses:
+        "200":
+          description: Rules list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Rule"
+                required: [items]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: createRule
+      summary: Create an automation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RuleInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rule"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /rules/{id}:
+    delete:
+      operationId: deleteRule
+      summary: Delete an automation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Not authenticated
+        "404":
+          description: Not found
+
 components:
   schemas:
     Session:
@@ -123,3 +218,80 @@ components:
         error:
           type: string
       required: [error]
+
+    Media:
+      type: object
+      properties:
+        id:
+          type: string
+        caption:
+          type: string
+        mediaType:
+          type: string
+        mediaUrl:
+          type: string
+        thumbnailUrl:
+          type: string
+        permalink:
+          type: string
+        timestamp:
+          type: string
+      required: [id, mediaType]
+
+    Rule:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        mediaId:
+          oneOf:
+            - type: string
+            - type: "null"
+        keywords:
+          type: array
+          items:
+            type: string
+        matchMode:
+          type: string
+        responseMessage:
+          type: string
+        responseLink:
+          oneOf:
+            - type: string
+            - type: "null"
+        requireFollow:
+          type: boolean
+        captureEmail:
+          type: boolean
+        status:
+          type: string
+      required:
+        [id, mediaId, keywords, matchMode, responseMessage, responseLink, requireFollow, captureEmail, status]
+
+    RuleInput:
+      type: object
+      properties:
+        mediaId:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: null = all posts (including future)
+        keywords:
+          type: array
+          items:
+            type: string
+          description: empty = reply on any comment
+        responseMessage:
+          type: string
+        responseLink:
+          oneOf:
+            - type: string
+            - type: "null"
+        requireFollow:
+          type: boolean
+          default: false
+        captureEmail:
+          type: boolean
+          default: false
+      required: [mediaId, keywords, responseMessage]

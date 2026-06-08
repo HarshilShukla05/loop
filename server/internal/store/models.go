@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Connection struct {
@@ -29,18 +28,18 @@ type Connection struct {
 }
 
 type Rule struct {
-	ID              uuid.UUID   `json:"id"`
-	ConnectionID    uuid.UUID   `json:"connection_id"`
-	MediaID         pgtype.Text `json:"media_id"`
-	Keywords        []string    `json:"keywords"`
-	MatchMode       string      `json:"match_mode"`
-	ResponseMessage string      `json:"response_message"`
-	ResponseLink    pgtype.Text `json:"response_link"`
-	RequireFollow   bool        `json:"require_follow"`
-	CaptureEmail    bool        `json:"capture_email"`
-	Status          string      `json:"status"`
-	CreatedAt       time.Time   `json:"created_at"`
-	UpdatedAt       time.Time   `json:"updated_at"`
+	ID              uuid.UUID `json:"id"`
+	ConnectionID    uuid.UUID `json:"connection_id"`
+	MediaID         *string   `json:"media_id"`
+	Keywords        []string  `json:"keywords"`
+	MatchMode       string    `json:"match_mode"`
+	ResponseMessage string    `json:"response_message"`
+	ResponseLink    *string   `json:"response_link"`
+	RequireFollow   bool      `json:"require_follow"`
+	CaptureEmail    bool      `json:"capture_email"`
+	Status          string    `json:"status"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 type User struct {

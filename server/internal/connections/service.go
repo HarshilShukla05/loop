@@ -100,3 +100,24 @@ func (s *Service) MarkSubscribed(ctx context.Context, connectionID uuid.UUID, fi
 func (s *Service) Account(ctx context.Context, userID uuid.UUID) (store.Connection, error) {
 	return s.q.ConnectionByUser(ctx, userID)
 }
+
+// Authorized returns the user's account with its access token decrypted, ready
+// for Meta calls. The plaintext token never leaves this boundary in stored form.
+func (s *Service) Authorized(ctx context.Context, userID uuid.UUID) (domain.ConnectedAccount, error) {
+	conn, err := s.q.ConnectionByUser(ctx, userID)
+	if err != nil {
+		return domain.ConnectedAccount{}, err
+	}
+	token, err := s.cipher.Decrypt(conn.AccessTokenEnc)
+	if err != nil {
+		return domain.ConnectedAccount{}, err
+	}
+	return domain.ConnectedAccount{
+		Platform:       conn.Platform,
+		ExternalID:     conn.ExternalAccountID,
+		Username:       conn.Username,
+		AccessToken:    token,
+		TokenExpiresAt: conn.TokenExpiresAt,
+		Scopes:         conn.Scopes,
+	}, nil
+}

@@ -15,6 +15,7 @@ import (
 	"loop/internal/db"
 	"loop/internal/httpx"
 	"loop/internal/instagram"
+	"loop/internal/rules"
 	"loop/internal/webhook"
 )
 
@@ -37,9 +38,10 @@ func main() {
 	}
 
 	conns := connections.NewService(pool, cipher)
+	ruleSvc := rules.NewService(pool)
 	igConnector := instagram.New(cfg.MetaAppID, cfg.MetaAppSecret, cfg.MetaRedirectURI, cfg.GraphAPIVersion)
-	ingest := webhook.NewHandler(cfg.WebhookVerifyToken)
-	api := httpx.New(ingest, igConnector, conns, cfg.SessionSecret, cfg.DashboardURL, cfg.SecureCookies, cfg.DevAuth)
+	ingest := webhook.NewHandler(cfg.WebhookVerifyToken, igConnector)
+	api := httpx.New(ingest, igConnector, conns, ruleSvc, cfg.SessionSecret, cfg.DashboardURL, cfg.SecureCookies, cfg.DevAuth)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,

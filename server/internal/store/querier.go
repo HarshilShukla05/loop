@@ -14,7 +14,10 @@ type Querier interface {
 	ConnectionByExternal(ctx context.Context, arg ConnectionByExternalParams) (Connection, error)
 	ConnectionByUser(ctx context.Context, userID uuid.UUID) (Connection, error)
 	CreateConnection(ctx context.Context, arg CreateConnectionParams) (Connection, error)
+	CreateRule(ctx context.Context, arg CreateRuleParams) (Rule, error)
 	CreateUser(ctx context.Context) (User, error)
+	DeleteRule(ctx context.Context, arg DeleteRuleParams) (int64, error)
+	RulesByConnection(ctx context.Context, connectionID uuid.UUID) ([]Rule, error)
 	SetSubscription(ctx context.Context, arg SetSubscriptionParams) error
 	TouchUserLogin(ctx context.Context, id uuid.UUID) error
 	UpdateConnectionTokens(ctx context.Context, arg UpdateConnectionTokensParams) (Connection, error)

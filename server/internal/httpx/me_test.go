@@ -28,6 +28,9 @@ func (f fakeAccounts) Connect(context.Context, domain.ConnectedAccount) (store.C
 	return f.conn, nil
 }
 func (f fakeAccounts) MarkSubscribed(context.Context, uuid.UUID, []string) error { return nil }
+func (f fakeAccounts) Authorized(context.Context, uuid.UUID) (domain.ConnectedAccount, error) {
+	return domain.ConnectedAccount{}, nil
+}
 
 func requestWithSession(userID uuid.UUID) *http.Request {
 	req := httptest.NewRequest(http.MethodGet, "/me", nil)
@@ -41,7 +44,7 @@ func TestMeReturnsAccount(t *testing.T) {
 		ID: uuid.New(), UserID: userID, Platform: "instagram",
 		Username: "creator.handle", Status: "connected", SubscriptionStatus: "active",
 	}
-	a := New(nil, nil, fakeAccounts{conn: conn}, "secret", "", false, false)
+	a := New(nil, nil, fakeAccounts{conn: conn}, nil, "secret", "", false, false)
 
 	rec := httptest.NewRecorder()
 	a.me(rec, requestWithSession(userID))
@@ -62,7 +65,7 @@ func TestMeReturnsAccount(t *testing.T) {
 }
 
 func TestMeUnauthorizedWithoutCookie(t *testing.T) {
-	a := New(nil, nil, fakeAccounts{}, "secret", "", false, false)
+	a := New(nil, nil, fakeAccounts{}, nil, "secret", "", false, false)
 	rec := httptest.NewRecorder()
 	a.me(rec, httptest.NewRequest(http.MethodGet, "/me", nil))
 	if rec.Code != http.StatusUnauthorized {
@@ -71,7 +74,7 @@ func TestMeUnauthorizedWithoutCookie(t *testing.T) {
 }
 
 func TestMeNullConnection(t *testing.T) {
-	a := New(nil, nil, fakeAccounts{err: pgx.ErrNoRows}, "secret", "", false, false)
+	a := New(nil, nil, fakeAccounts{err: pgx.ErrNoRows}, nil, "secret", "", false, false)
 	rec := httptest.NewRecorder()
 	a.me(rec, requestWithSession(uuid.New()))
 

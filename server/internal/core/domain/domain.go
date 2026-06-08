@@ -30,3 +30,14 @@ type OutboundMessage struct {
 	RecipientRef string
 	Body         string
 }
+
+// Media is a post/reel on a connected account (used by the rule picker).
+type Media struct {
+	ID           string
+	Caption      string
+	MediaType    string
+	MediaURL     string
+	ThumbnailURL string
+	Permalink    string
+	Timestamp    string
+}

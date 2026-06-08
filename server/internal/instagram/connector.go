@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -63,6 +64,7 @@ func (c *Connector) AuthorizeURL(state string) string {
 }
 
 func (c *Connector) ExchangeCode(ctx context.Context, code string) (domain.ConnectedAccount, error) {
+	log.Println("instagram: exchanging authorization code for token")
 	var short struct {
 		AccessToken string `json:"access_token"`
 		UserID      int64  `json:"user_id"`
@@ -104,6 +106,7 @@ func (c *Connector) ExchangeCode(ctx context.Context, code string) (domain.Conne
 
 	externalID := strconv.FormatInt(short.UserID, 10)
 	expiresAt := time.Now().Add(time.Duration(long.ExpiresIn) * time.Second)
+	log.Printf("instagram: connected @%s (id %s), token expires %s", me.Username, externalID, expiresAt.Format(time.RFC3339))
 
 	return domain.ConnectedAccount{
 		Platform:       domain.PlatformInstagram,
@@ -116,12 +119,51 @@ func (c *Connector) ExchangeCode(ctx context.Context, code string) (domain.Conne
 }
 
 func (c *Connector) Subscribe(ctx context.Context, account domain.ConnectedAccount, fields []string) error {
+	log.Printf("instagram: subscribing account %s to fields %v", account.ExternalID, fields)
 	endpoint := fmt.Sprintf("%s/%s/%s/subscribed_apps", graphHost, c.graphVer, account.ExternalID)
 	form := url.Values{
 		"subscribed_fields": {strings.Join(fields, ",")},
 		"access_token":      {account.AccessToken},
 	}
 	return c.postForm(ctx, endpoint, form, nil)
+}
+
+func (c *Connector) Media(ctx context.Context, account domain.ConnectedAccount) ([]domain.Media, error) {
+	log.Printf("instagram: fetching media for account %s", account.ExternalID)
+	endpoint := graphHost + "/me/media?" + url.Values{
+		"fields":       {"id,caption,media_type,media_url,thumbnail_url,permalink,timestamp"},
+		"access_token": {account.AccessToken},
+		"limit":        {"50"},
+	}.Encode()
+
+	var resp struct {
+		Data []struct {
+			ID           string `json:"id"`
+			Caption      string `json:"caption"`
+			MediaType    string `json:"media_type"`
+			MediaURL     string `json:"media_url"`
+			ThumbnailURL string `json:"thumbnail_url"`
+			Permalink    string `json:"permalink"`
+			Timestamp    string `json:"timestamp"`
+		} `json:"data"`
+	}
+	if err := c.getJSON(ctx, endpoint, &resp); err != nil {
+		return nil, err
+	}
+
+	media := make([]domain.Media, len(resp.Data))
+	for i, m := range resp.Data {
+		media[i] = domain.Media{
+			ID:           m.ID,
+			Caption:      m.Caption,
+			MediaType:    m.MediaType,
+			MediaURL:     m.MediaURL,
+			ThumbnailURL: m.ThumbnailURL,
+			Permalink:    m.Permalink,
+			Timestamp:    m.Timestamp,
+		}
+	}
+	return media, nil
 }
 
 func (c *Connector) VerifySignature(body []byte, signature string) bool {
