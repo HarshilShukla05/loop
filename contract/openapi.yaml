@@ -1,0 +1,125 @@
+openapi: 3.1.0
+info:
+  title: Loop API
+  version: 0.1.0
+  description: >
+    Instagram comment-to-DM automation. This is the source-of-truth contract
+    between the Go backend (server/) and the React SPA (dashboard/).
+    Scope: Flow A — authentication, session, connected-account status.
+servers:
+  - url: http://localhost:8080
+    description: Local dev
+
+paths:
+  /healthz:
+    get:
+      operationId: health
+      summary: Liveness probe
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                required: [status]
+
+  /me:
+    get:
+      operationId: session
+      summary: Current session and connected account
+      responses:
+        "200":
+          description: Authenticated session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/instagram:
+    get:
+      operationId: startInstagramAuth
+      summary: Begin Instagram login (login = connect = subscribe in one OAuth)
+      responses:
+        "302":
+          description: Redirect to Instagram authorization
+
+  /auth/instagram/callback:
+    get:
+      operationId: instagramCallback
+      summary: OAuth callback; sets session cookie, redirects to the dashboard
+      parameters:
+        - name: code
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to dashboard
+
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Clear the session
+      responses:
+        "204":
+          description: Logged out
+
+components:
+  schemas:
+    Session:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        connection:
+          oneOf:
+            - $ref: "#/components/schemas/Connection"
+            - type: "null"
+      required: [user, connection]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required: [id]
+
+    Connection:
+      type: object
+      properties:
+        platform:
+          type: string
+          example: instagram
+        username:
+          type: string
+          example: creator.handle
+        status:
+          type: string
+          enum: [connected, token_expired, disconnected, error]
+        subscriptionStatus:
+          type: string
+          enum: [pending, active, failed]
+      required: [platform, username, status, subscriptionStatus]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
