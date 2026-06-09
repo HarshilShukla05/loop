@@ -1,6 +1,20 @@
 import { useState, type ReactNode } from "react";
+import { X } from "lucide-react";
 import { api } from "../api/client";
 import { PostPicker } from "./PostPicker";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 export function RuleEditor({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
   const [scope, setScope] = useState<"all" | "specific">("all");
@@ -45,12 +59,12 @@ export function RuleEditor({ onClose, onCreated }: { onClose: () => void; onCrea
   };
 
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="text-lg font-semibold text-neutral-900">New automation</h2>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogTitle>New automation</DialogTitle>
+        <DialogDescription>
+          When someone comments your keyword, we DM them your message instantly.
+        </DialogDescription>
 
         <Section title="Apply to">
           <Choice checked={scope === "all"} onClick={() => setScope("all")} label="All posts (and future)" />
@@ -63,21 +77,31 @@ export function RuleEditor({ onClose, onCreated }: { onClose: () => void; onCrea
         </Section>
 
         <Section title="Trigger">
-          <Choice checked={triggerMode === "keywords"} onClick={() => setTriggerMode("keywords")} label="On specific keyword(s)" />
+          <Choice
+            checked={triggerMode === "keywords"}
+            onClick={() => setTriggerMode("keywords")}
+            label="On specific keyword(s)"
+          />
           <Choice checked={triggerMode === "any"} onClick={() => setTriggerMode("any")} label="On any comment" />
           {triggerMode === "keywords" && (
             <div className="mt-3">
-              <div className="flex flex-wrap gap-2">
-                {keywords.map((k) => (
-                  <span key={k} className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-sm">
-                    {k}
-                    <button onClick={() => setKeywords(keywords.filter((x) => x !== k))} className="text-neutral-400 hover:text-neutral-700">
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <input
+              {keywords.length > 0 && (
+                <div className="mb-2 flex flex-wrap gap-2">
+                  {keywords.map((k) => (
+                    <Badge key={k} variant="accent">
+                      {k}
+                      <button
+                        onClick={() => setKeywords(keywords.filter((x) => x !== k))}
+                        className="text-accent-foreground/60 transition-colors hover:text-accent-foreground"
+                        aria-label={`Remove keyword ${k}`}
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              <Input
                 value={keywordInput}
                 onChange={(e) => setKeywordInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -87,25 +111,23 @@ export function RuleEditor({ onClose, onCreated }: { onClose: () => void; onCrea
                   }
                 }}
                 placeholder="Type a keyword, press Enter"
-                className="mt-2 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
               />
             </div>
           )}
         </Section>
 
         <Section title="Reply">
-          <textarea
+          <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={3}
             placeholder="The DM we'll send…"
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
           />
-          <input
+          <Input
             value={link}
             onChange={(e) => setLink(e.target.value)}
             placeholder="Link to share (optional)"
-            className="mt-2 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            className="mt-2"
           />
         </Section>
 
@@ -114,29 +136,25 @@ export function RuleEditor({ onClose, onCreated }: { onClose: () => void; onCrea
           <Toggle checked={captureEmail} onChange={setCaptureEmail} label="Capture their email" />
         </Section>
 
-        {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
+        {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
 
-        <div className="mt-6 flex justify-end gap-2">
-          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-100">
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            onClick={save}
-            disabled={saving}
-            className="rounded-lg bg-gradient-to-r from-fuchsia-600 to-orange-500 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-          >
+          </Button>
+          <Button onClick={save} disabled={saving}>
             {saving ? "Saving…" : "Save automation"}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="mt-5">
-      <h3 className="text-sm font-medium text-neutral-500">{title}</h3>
+      <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{title}</h3>
       <div className="mt-2 space-y-1.5">{children}</div>
     </div>
   );
@@ -147,19 +165,37 @@ function Choice({ checked, onClick, label }: { checked: boolean; onClick: () => 
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm ${checked ? "border-fuchsia-600 bg-fuchsia-50" : "border-neutral-200"}`}
+      className={cn(
+        "flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+        checked
+          ? "border-primary/60 bg-accent text-foreground"
+          : "border-border text-muted-foreground hover:border-input hover:text-foreground",
+      )}
     >
-      <span className={`h-3.5 w-3.5 rounded-full border ${checked ? "border-fuchsia-600 bg-fuchsia-600" : "border-neutral-400"}`} />
+      <span
+        className={cn(
+          "size-3.5 rounded-full border-2 transition-colors",
+          checked ? "border-primary bg-primary" : "border-input",
+        )}
+      />
       {label}
     </button>
   );
 }
 
-function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+function Toggle({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+}) {
   return (
-    <label className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 text-sm">
-      <span className="text-neutral-700">{label}</span>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+    <label className="flex cursor-pointer items-center justify-between rounded-lg border border-border px-3 py-2.5 text-sm">
+      <span className="text-foreground">{label}</span>
+      <Switch checked={checked} onCheckedChange={onChange} />
     </label>
   );
 }

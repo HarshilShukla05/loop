@@ -1,15 +1,18 @@
+import { TriangleAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 export function ReconnectBanner({ onReconnect }: { onReconnect: () => void }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-      <p className="text-sm text-amber-800">
-        Your account isn't fully activated yet. Reconnect to start receiving comment events.
-      </p>
-      <button
-        onClick={onReconnect}
-        className="shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700"
-      >
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-warning/30 bg-warning-soft px-4 py-3">
+      <div className="flex items-center gap-3">
+        <TriangleAlert className="size-4 shrink-0 text-warning" />
+        <p className="text-sm text-warning">
+          Your account isn't fully activated yet. Reconnect to start receiving comment events.
+        </p>
+      </div>
+      <Button variant="outline" size="sm" onClick={onReconnect} className="shrink-0">
         Reconnect
-      </button>
+      </Button>
     </div>
   );
 }
