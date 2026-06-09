@@ -11,13 +11,20 @@ import (
 )
 
 type Querier interface {
+	ClaimDMJob(ctx context.Context) (DmOutbox, error)
 	ConnectionByExternal(ctx context.Context, arg ConnectionByExternalParams) (Connection, error)
 	ConnectionByUser(ctx context.Context, userID uuid.UUID) (Connection, error)
 	CreateConnection(ctx context.Context, arg CreateConnectionParams) (Connection, error)
 	CreateRule(ctx context.Context, arg CreateRuleParams) (Rule, error)
 	CreateUser(ctx context.Context) (User, error)
+	DeferJob(ctx context.Context, arg DeferJobParams) error
 	DeleteRule(ctx context.Context, arg DeleteRuleParams) (int64, error)
+	FailJob(ctx context.Context, arg FailJobParams) error
+	InsertDMJob(ctx context.Context, arg InsertDMJobParams) (int64, error)
+	MarkSent(ctx context.Context, id uuid.UUID) error
+	RetryJob(ctx context.Context, arg RetryJobParams) error
 	RulesByConnection(ctx context.Context, connectionID uuid.UUID) ([]Rule, error)
+	RulesForCache(ctx context.Context) ([]RulesForCacheRow, error)
 	SetSubscription(ctx context.Context, arg SetSubscriptionParams) error
 	TouchUserLogin(ctx context.Context, id uuid.UUID) error
 	UpdateConnectionTokens(ctx context.Context, arg UpdateConnectionTokensParams) (Connection, error)

@@ -44,7 +44,7 @@ func TestMeReturnsAccount(t *testing.T) {
 		ID: uuid.New(), UserID: userID, Platform: "instagram",
 		Username: "creator.handle", Status: "connected", SubscriptionStatus: "active",
 	}
-	a := New(nil, nil, fakeAccounts{conn: conn}, nil, "secret", "", false, false)
+	a := New(nil, nil, fakeAccounts{conn: conn}, nil, nil, "secret", "", false, false)
 
 	rec := httptest.NewRecorder()
 	a.me(rec, requestWithSession(userID))
@@ -65,7 +65,7 @@ func TestMeReturnsAccount(t *testing.T) {
 }
 
 func TestMeUnauthorizedWithoutCookie(t *testing.T) {
-	a := New(nil, nil, fakeAccounts{}, nil, "secret", "", false, false)
+	a := New(nil, nil, fakeAccounts{}, nil, nil, "secret", "", false, false)
 	rec := httptest.NewRecorder()
 	a.me(rec, httptest.NewRequest(http.MethodGet, "/me", nil))
 	if rec.Code != http.StatusUnauthorized {
@@ -74,7 +74,7 @@ func TestMeUnauthorizedWithoutCookie(t *testing.T) {
 }
 
 func TestMeNullConnection(t *testing.T) {
-	a := New(nil, nil, fakeAccounts{err: pgx.ErrNoRows}, nil, "secret", "", false, false)
+	a := New(nil, nil, fakeAccounts{err: pgx.ErrNoRows}, nil, nil, "secret", "", false, false)
 	rec := httptest.NewRecorder()
 	a.me(rec, requestWithSession(uuid.New()))
 

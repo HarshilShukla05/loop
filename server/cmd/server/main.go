@@ -15,7 +15,9 @@ import (
 	"loop/internal/db"
 	"loop/internal/httpx"
 	"loop/internal/instagram"
+	"loop/internal/rulecache"
 	"loop/internal/rules"
+	"loop/internal/store"
 	"loop/internal/webhook"
 )
 
@@ -39,9 +41,17 @@ func main() {
 
 	conns := connections.NewService(pool, cipher)
 	ruleSvc := rules.NewService(pool)
+
+	queries := store.New(pool)
+	cache := rulecache.New(queries)
+	if err := cache.Load(ctx); err != nil {
+		log.Fatalf("rule cache load: %v", err)
+	}
+	log.Printf("rule cache loaded: %d rules", cache.Count())
+
 	igConnector := instagram.New(cfg.MetaAppID, cfg.MetaAppSecret, cfg.MetaRedirectURI, cfg.GraphAPIVersion)
-	ingest := webhook.NewHandler(cfg.WebhookVerifyToken, igConnector)
-	api := httpx.New(ingest, igConnector, conns, ruleSvc, cfg.SessionSecret, cfg.DashboardURL, cfg.SecureCookies, cfg.DevAuth)
+	ingest := webhook.NewHandler(cfg.WebhookVerifyToken, igConnector, cache, queries)
+	api := httpx.New(ingest, igConnector, conns, ruleSvc, cache, cfg.SessionSecret, cfg.DashboardURL, cfg.SecureCookies, cfg.DevAuth)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,

@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"loop/internal/core/domain"
+	"loop/internal/rulecache"
 	"loop/internal/rules"
 	"loop/internal/store"
 	"loop/internal/webhook"
@@ -42,23 +43,31 @@ type ruleService interface {
 	Delete(ctx context.Context, connectionID, ruleID uuid.UUID) (bool, error)
 }
 
+// ruleCache keeps the in-memory matcher in sync with rule changes.
+type ruleCache interface {
+	AddRule(externalAccountID string, mediaID *string, r rulecache.Rule)
+	RemoveRule(externalAccountID string, ruleID uuid.UUID)
+}
+
 type API struct {
 	webhook       *webhook.Handler
 	connector     connector
 	accounts      accounts
 	rules         ruleService
+	cache         ruleCache
 	sessionSecret string
 	dashboardURL  string
 	secureCookies bool
 	devAuth       bool
 }
 
-func New(wh *webhook.Handler, conn connector, acc accounts, rs ruleService, sessionSecret, dashboardURL string, secureCookies, devAuth bool) *API {
+func New(wh *webhook.Handler, conn connector, acc accounts, rs ruleService, cache ruleCache, sessionSecret, dashboardURL string, secureCookies, devAuth bool) *API {
 	return &API{
 		webhook:       wh,
 		connector:     conn,
 		accounts:      acc,
 		rules:         rs,
+		cache:         cache,
 		sessionSecret: sessionSecret,
 		dashboardURL:  dashboardURL,
 		secureCookies: secureCookies,

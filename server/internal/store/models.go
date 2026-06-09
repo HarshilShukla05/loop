@@ -27,6 +27,24 @@ type Connection struct {
 	UpdatedAt          time.Time  `json:"updated_at"`
 }
 
+type DmOutbox struct {
+	ID                uuid.UUID  `json:"id"`
+	ConnectionID      uuid.UUID  `json:"connection_id"`
+	RuleID            uuid.UUID  `json:"rule_id"`
+	ExternalAccountID string     `json:"external_account_id"`
+	CommentID         string     `json:"comment_id"`
+	ActorID           string     `json:"actor_id"`
+	MediaID           *string    `json:"media_id"`
+	Body              string     `json:"body"`
+	Link              *string    `json:"link"`
+	Status            string     `json:"status"`
+	AttemptCount      int32      `json:"attempt_count"`
+	NextAttemptAt     time.Time  `json:"next_attempt_at"`
+	LastError         *string    `json:"last_error"`
+	CreatedAt         time.Time  `json:"created_at"`
+	SentAt            *time.Time `json:"sent_at"`
+}
+
 type Rule struct {
 	ID              uuid.UUID `json:"id"`
 	ConnectionID    uuid.UUID `json:"connection_id"`

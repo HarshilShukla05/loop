@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"loop/internal/rulecache"
 	"loop/internal/rules"
 	"loop/internal/store"
 )
@@ -91,6 +92,14 @@ func (a *API) createRule(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, errorBody("could not create rule"))
 		return
 	}
+	a.cache.AddRule(conn.ExternalAccountID, rule.MediaID, rulecache.Rule{
+		ID:            rule.ID,
+		ConnectionID:  rule.ConnectionID,
+		Keywords:      rule.Keywords,
+		Body:          rule.ResponseMessage,
+		Link:          rule.ResponseLink,
+		RequireFollow: rule.RequireFollow,
+	})
 	log.Printf("rule created: id=%s media=%v keywords=%v", rule.ID, derefOr(rule.MediaID, "all"), rule.Keywords)
 	writeJSON(w, http.StatusCreated, toRuleView(rule))
 }
@@ -115,6 +124,7 @@ func (a *API) deleteRule(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	a.cache.RemoveRule(conn.ExternalAccountID, id)
 	log.Printf("rule deleted: id=%s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
