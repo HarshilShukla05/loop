@@ -15,6 +15,8 @@ import (
 	"loop/internal/db"
 	"loop/internal/httpx"
 	"loop/internal/instagram"
+	"loop/internal/outbox"
+	"loop/internal/ratelimit"
 	"loop/internal/rulecache"
 	"loop/internal/rules"
 	"loop/internal/store"
@@ -53,6 +55,14 @@ func main() {
 	ingest := webhook.NewHandler(cfg.WebhookVerifyToken, igConnector, cache, queries)
 	api := httpx.New(ingest, igConnector, conns, ruleSvc, cache, cfg.SessionSecret, cfg.DashboardURL, cfg.MarketingURL, cfg.SecureCookies, cfg.DevAuth)
 
+	limiter := ratelimit.New(pool, cfg.RateLimitPerHour)
+	workers := outbox.NewPool(pool, conns, igConnector, limiter, outbox.Config{
+		Workers: cfg.WorkerCount,
+		DryRun:  cfg.SendDryRun,
+	})
+	workerCtx, cancelWorkers := context.WithCancel(context.Background())
+	workers.Start(workerCtx)
+
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
 		Handler:           api.Handler(),
@@ -71,9 +81,12 @@ func main() {
 	<-stop
 
 	log.Println("shutting down")
+	cancelWorkers() // stop claiming new jobs; in-flight sends finish or roll back
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Printf("shutdown: %v", err)
 	}
+	workers.Wait()
+	log.Println("outbox drained")
 }
