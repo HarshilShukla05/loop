@@ -73,7 +73,7 @@ export default function ChatDemo() {
         </div>
 
         {/* "media" */}
-        <div className="relative h-36 bg-[linear-gradient(120deg,#fde8f0,#ede7fb,#e6ecff)]">
+        <div className="relative h-36 bg-[linear-gradient(120deg,#FBE9E2,#FAF0DC,#FAF9F6)]">
           <div className="absolute inset-0 grain opacity-60" />
           <div className="absolute bottom-3 left-4 rounded-full bg-white/80 px-3 py-1 text-[12px] font-medium text-ink backdrop-blur">
             Comment <span className="text-gradient font-semibold">LINK</span> for
@@ -105,14 +105,14 @@ export default function ChatDemo() {
                 transition={{ duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
                 className="flex items-start justify-end gap-2.5"
               >
-                <div className="max-w-[78%] rounded-2xl rounded-tr-md bg-ink px-3.5 py-2.5 text-paper">
-                  <p className="text-[12px] font-medium text-paper/70">
+                <div className="max-w-[78%] rounded-2xl rounded-tr-md bg-coral px-3.5 py-2.5 text-white">
+                  <p className="text-[12px] font-medium text-white/75">
                     Auto-DM from loop
                   </p>
                   <p className="mt-0.5 text-[14px] leading-snug">
                     Hey Priya! Here&apos;s your freebie 🎁 → loop.so/drop
                   </p>
-                  <p className="mt-1.5 text-[12px] text-paper/60">
+                  <p className="mt-1.5 text-[12px] text-white/65">
                     ✓ Delivered · email saved to list
                   </p>
                 </div>

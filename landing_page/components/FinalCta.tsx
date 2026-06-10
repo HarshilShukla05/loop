@@ -12,8 +12,8 @@ export default function FinalCta() {
           <div className="grain relative overflow-hidden rounded-[40px] border border-line bg-ink px-6 py-20 text-center sm:py-28">
             {/* gradient blooms */}
             <div className="pointer-events-none absolute inset-0">
-              <div className="absolute -top-24 left-1/2 h-[420px] w-[640px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(221,42,123,0.45),transparent)] blur-2xl" />
-              <div className="absolute bottom-0 right-10 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(81,91,212,0.4),transparent)] blur-2xl" />
+              <div className="absolute -top-24 left-1/2 h-[420px] w-[640px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(232,93,61,0.45),transparent)] blur-2xl" />
+              <div className="absolute bottom-0 right-10 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(232,162,61,0.35),transparent)] blur-2xl" />
             </div>
 
             <div className="relative z-10">
@@ -25,7 +25,7 @@ export default function FinalCta() {
                 className="mx-auto max-w-3xl text-[clamp(2.2rem,5vw,3.8rem)] font-semibold leading-[1.02] tracking-tightest text-paper"
               >
                 Your next viral reel is coming.{" "}
-                <span className="serif-italic text-gradient">
+                <span className="serif-italic animate-shimmer bg-[linear-gradient(90deg,#E85D3D,#C2402A,#E8A23D,#E85D3D)] bg-[length:200%_auto] bg-clip-text text-transparent">
                   Be ready to catch it.
                 </span>
               </motion.h2>

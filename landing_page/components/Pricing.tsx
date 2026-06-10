@@ -12,7 +12,7 @@ const INCLUDED = [
   "Follow-gating",
   "Email capture + export",
   "Posts, Reels & Stories",
-  "Live analytics dashboard",
+  "DM activity history",
   "UPI, cards & global payments",
 ];
 

@@ -1,17 +1,33 @@
+import Link from "next/link";
 import Logo from "@/components/ui/Logo";
 
 const COLUMNS = [
   {
     title: "Product",
-    links: ["How it works", "Features", "vs ManyChat", "Pricing"],
+    links: [
+      { label: "How it works", href: "#how" },
+      { label: "Features", href: "#features" },
+      { label: "vs ManyChat", href: "#compare" },
+      { label: "Pricing", href: "#pricing" },
+    ],
   },
   {
     title: "Company",
-    links: ["About", "Blog", "Careers", "Contact"],
+    links: [
+      { label: "About", href: "#" },
+      { label: "Blog", href: "#" },
+      { label: "Careers", href: "#" },
+      { label: "Contact", href: "#" },
+    ],
   },
   {
     title: "Legal",
-    links: ["Privacy", "Terms", "Refund policy", "Status"],
+    links: [
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
+      { label: "Refund policy", href: "/refunds" },
+      { label: "Data deletion", href: "/data-deletion" },
+    ],
   },
 ];
 
@@ -38,13 +54,22 @@ export default function Footer() {
               </h4>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
-                  <li key={l}>
-                    <a
-                      href="#"
-                      className="text-[14.5px] text-muted transition-colors hover:text-ink"
-                    >
-                      {l}
-                    </a>
+                  <li key={l.label}>
+                    {l.href.startsWith("/") ? (
+                      <Link
+                        href={l.href}
+                        className="text-[14.5px] text-muted transition-colors hover:text-ink"
+                      >
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={l.href}
+                        className="text-[14.5px] text-muted transition-colors hover:text-ink"
+                      >
+                        {l.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
