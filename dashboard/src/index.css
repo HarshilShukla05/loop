@@ -1,4 +1,94 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/fraunces";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Loop design tokens — "warm editorial" scheme.
+ * Light: cream paper, near-black ink, coral accent.
+ * Dark: warm charcoal, soft ivory ink, brighter coral.
+ */
+:root {
+  --background: #faf9f6;
+  --foreground: #1c1b17;
+  --card: #ffffff;
+  --card-foreground: #1c1b17;
+  --popover: #ffffff;
+  --popover-foreground: #1c1b17;
+  --primary: #e85d3d;
+  --primary-foreground: #fff8f4;
+  --secondary: #f1efe9;
+  --secondary-foreground: #1c1b17;
+  --muted: #f1efe9;
+  --muted-foreground: #87837a;
+  --accent: #fbe9e2;
+  --accent-foreground: #9c3a22;
+  --destructive: #c2402a;
+  --destructive-foreground: #fff8f4;
+  --success: #3f7354;
+  --success-soft: #e4efe7;
+  --warning: #9a6b1f;
+  --warning-soft: #f7eedb;
+  --border: #e8e5dd;
+  --input: #dcd8cf;
+  --ring: #e85d3d;
+}
+
+.dark {
+  --background: #161513;
+  --foreground: #f0eee8;
+  --card: #1e1c19;
+  --card-foreground: #f0eee8;
+  --popover: #1e1c19;
+  --popover-foreground: #f0eee8;
+  --primary: #f0684a;
+  --primary-foreground: #1c0d08;
+  --secondary: #27241f;
+  --secondary-foreground: #f0eee8;
+  --muted: #27241f;
+  --muted-foreground: #9b968a;
+  --accent: #38231c;
+  --accent-foreground: #f4a48d;
+  --destructive: #e25940;
+  --destructive-foreground: #1c0d08;
+  --success: #84b896;
+  --success-soft: #1e2b22;
+  --warning: #d6a957;
+  --warning-soft: #2d2516;
+  --border: #2c2923;
+  --input: #3a362e;
+  --ring: #f0684a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+}
 
 html,
 body,
@@ -8,5 +98,13 @@ body,
 
 body {
   margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72;
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -57,11 +58,12 @@ type API struct {
 	cache         ruleCache
 	sessionSecret string
 	dashboardURL  string
+	marketingURL  string
 	secureCookies bool
 	devAuth       bool
 }
 
-func New(wh *webhook.Handler, conn connector, acc accounts, rs ruleService, cache ruleCache, sessionSecret, dashboardURL string, secureCookies, devAuth bool) *API {
+func New(wh *webhook.Handler, conn connector, acc accounts, rs ruleService, cache ruleCache, sessionSecret, dashboardURL, marketingURL string, secureCookies, devAuth bool) *API {
 	return &API{
 		webhook:       wh,
 		connector:     conn,
@@ -70,6 +72,7 @@ func New(wh *webhook.Handler, conn connector, acc accounts, rs ruleService, cach
 		cache:         cache,
 		sessionSecret: sessionSecret,
 		dashboardURL:  dashboardURL,
+		marketingURL:  marketingURL,
 		secureCookies: secureCookies,
 		devAuth:       devAuth,
 	}
@@ -78,6 +81,7 @@ func New(wh *webhook.Handler, conn connector, acc accounts, rs ruleService, cach
 func (a *API) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", health)
+	mux.HandleFunc("GET /config", a.publicConfig)
 	mux.HandleFunc("GET /webhooks/instagram", a.webhook.Verify)
 	mux.HandleFunc("POST /webhooks/instagram", a.webhook.Receive)
 	mux.HandleFunc("GET /auth/instagram", a.startInstagram)
@@ -111,6 +115,17 @@ func (a *API) sessionConnection(w http.ResponseWriter, r *http.Request) (store.C
 
 func health(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+}
+
+// publicConfig exposes unauthenticated client configuration, currently the
+// legal page URLs on the marketing site (shown on the login surface).
+func (a *API) publicConfig(w http.ResponseWriter, r *http.Request) {
+	base := strings.TrimRight(a.marketingURL, "/")
+	writeJSON(w, http.StatusOK, map[string]string{
+		"privacyUrl":      base + "/privacy",
+		"termsUrl":        base + "/terms",
+		"dataDeletionUrl": base + "/data-deletion",
+	})
 }
 
 func errorBody(message string) map[string]string {

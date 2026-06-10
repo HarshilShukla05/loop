@@ -51,7 +51,7 @@ func main() {
 
 	igConnector := instagram.New(cfg.MetaAppID, cfg.MetaAppSecret, cfg.MetaRedirectURI, cfg.GraphAPIVersion)
 	ingest := webhook.NewHandler(cfg.WebhookVerifyToken, igConnector, cache, queries)
-	api := httpx.New(ingest, igConnector, conns, ruleSvc, cache, cfg.SessionSecret, cfg.DashboardURL, cfg.SecureCookies, cfg.DevAuth)
+	api := httpx.New(ingest, igConnector, conns, ruleSvc, cache, cfg.SessionSecret, cfg.DashboardURL, cfg.MarketingURL, cfg.SecureCookies, cfg.DevAuth)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,

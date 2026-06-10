@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Public client configuration (no auth required) */
+        get: operations["publicConfig"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me": {
         parameters: {
             query?: never;
@@ -32,7 +49,15 @@ export interface paths {
         get: operations["session"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete the account and all stored data (Meta data-deletion path)
+         * @description Permanently deletes the user's Loop account and everything associated
+         *     with it: the Instagram connection (access tokens, account identifiers),
+         *     cached media metadata, comment events, DM history, and automation
+         *     rules. Clears the session. This backs the self-service option promised
+         *     on the public data-deletion page.
+         */
+        delete: operations["deleteAccount"];
         options?: never;
         head?: never;
         patch?: never;
@@ -231,6 +256,30 @@ export interface operations {
             };
         };
     };
+    publicConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Public configuration */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        privacyUrl: string;
+                        termsUrl: string;
+                        dataDeletionUrl: string;
+                    };
+                };
+            };
+        };
+    };
     session: {
         parameters: {
             query?: never;
@@ -248,6 +297,33 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Session"];
                 };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    deleteAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Account and all data deleted; session cleared */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Not authenticated */
             401: {

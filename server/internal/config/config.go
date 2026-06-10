@@ -9,6 +9,7 @@ type Config struct {
 	Port               string
 	DatabaseURL        string
 	DashboardURL       string
+	MarketingURL       string
 	MetaAppID          string
 	MetaAppSecret      string
 	MetaConfigID       string
@@ -26,6 +27,7 @@ func Load() (Config, error) {
 		Port:               fallback("PORT", "8080"),
 		DatabaseURL:        os.Getenv("DATABASE_URL"),
 		DashboardURL:       fallback("DASHBOARD_URL", "http://localhost:5173"),
+		MarketingURL:       fallback("MARKETING_URL", "http://localhost:3000"),
 		MetaAppID:          os.Getenv("META_APP_ID"),
 		MetaAppSecret:      os.Getenv("META_APP_SECRET"),
 		MetaConfigID:       os.Getenv("META_CONFIG_ID"),

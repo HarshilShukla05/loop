@@ -51,8 +51,8 @@ export default function MagneticButton({
     "group relative inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-[15px] font-medium tracking-tight transition-colors will-change-transform";
   const styles =
     variant === "primary"
-      ? "bg-ink text-paper hover:bg-black ring-soft"
-      : "border border-line bg-white/60 text-ink hover:bg-white";
+      ? "bg-ink text-paper hover:opacity-90 ring-soft"
+      : "border border-line bg-card/60 text-ink hover:bg-card";
 
   return (
     <motion.a

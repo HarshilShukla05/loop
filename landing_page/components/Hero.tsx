@@ -11,9 +11,9 @@ export default function Hero() {
     <section className="grain relative overflow-hidden px-4 pb-20 pt-36 sm:pt-44">
       {/* soft ambient gradient blooms */}
       <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute -top-32 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(221,42,123,0.12),transparent)] blur-2xl" />
-        <div className="absolute right-[8%] top-40 h-[360px] w-[360px] rounded-full bg-[radial-gradient(closest-side,rgba(81,91,212,0.10),transparent)] blur-2xl" />
-        <div className="absolute left-[6%] top-72 h-[320px] w-[320px] rounded-full bg-[radial-gradient(closest-side,rgba(245,133,41,0.10),transparent)] blur-2xl" />
+        <div className="absolute -top-32 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(232,93,61,0.12),transparent)] blur-2xl" />
+        <div className="absolute right-[8%] top-40 h-[360px] w-[360px] rounded-full bg-[radial-gradient(closest-side,rgba(232,162,61,0.10),transparent)] blur-2xl" />
+        <div className="absolute left-[6%] top-72 h-[320px] w-[320px] rounded-full bg-[radial-gradient(closest-side,rgba(251,233,226,0.9),transparent)] blur-2xl" />
       </div>
 
       <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr,0.95fr]">
@@ -24,7 +24,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="group inline-flex items-center gap-2 rounded-full border border-line bg-white/70 px-3.5 py-1.5 text-[13px] text-muted backdrop-blur-sm"
+            className="group inline-flex items-center gap-2 rounded-full border border-line bg-card/70 px-3.5 py-1.5 text-[13px] text-muted backdrop-blur-sm"
           >
             <span className="flex h-1.5 w-1.5 rounded-full bg-gradient-ig" />
             Instagram DM automation, minus the ManyChat tax
@@ -41,7 +41,9 @@ export default function Hero() {
           >
             Turn comments
             <br className="hidden sm:block" /> into DMs.{" "}
-            <span className="serif-italic text-gradient">Get that reach.</span>
+            <span className="serif-italic animate-shimmer bg-[linear-gradient(90deg,#E85D3D,#C2402A,#E8A23D,#E85D3D)] bg-[length:200%_auto] bg-clip-text text-transparent">
+              Get that reach.
+            </span>
           </motion.h1>
 
           <motion.p

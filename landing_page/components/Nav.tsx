@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/ui/Logo";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const links = [
   { label: "How it works", href: "#how" },
@@ -31,7 +32,7 @@ export default function Nav() {
         transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
         className={`flex w-full max-w-5xl items-center justify-between rounded-full px-3 py-2.5 transition-all duration-300 ${
           scrolled
-            ? "border border-line bg-white/80 backdrop-blur-xl ring-soft"
+            ? "border border-line bg-card/80 backdrop-blur-xl ring-soft"
             : "border border-transparent bg-transparent"
         }`}
       >
@@ -52,16 +53,17 @@ export default function Nav() {
         </div>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <a
             href="#pricing"
-            className="hidden rounded-full bg-ink px-5 py-2.5 text-[14px] font-medium text-paper transition-colors hover:bg-black sm:inline-flex"
+            className="hidden rounded-full bg-ink px-5 py-2.5 text-[14px] font-medium text-paper transition-colors hover:opacity-90 sm:inline-flex"
           >
             Start now
           </a>
           <button
             aria-label="Toggle menu"
             onClick={() => setOpen((v) => !v)}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white/70 md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-card/70 md:hidden"
           >
             <div className="space-y-1.5">
               <span
@@ -85,7 +87,7 @@ export default function Nav() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="absolute top-[72px] z-50 w-[calc(100%-2rem)] max-w-5xl rounded-3xl border border-line bg-white/90 p-3 backdrop-blur-xl ring-soft md:hidden"
+            className="absolute top-[72px] z-50 w-[calc(100%-2rem)] max-w-5xl rounded-3xl border border-line bg-card/90 p-3 backdrop-blur-xl ring-soft md:hidden"
           >
             {links.map((l) => (
               <a

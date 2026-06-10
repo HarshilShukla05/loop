@@ -45,7 +45,7 @@ function Item({ q, a }: { q: string; a: string }) {
         </span>
         <span
           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line text-ink transition-transform duration-300 ${
-            open ? "rotate-45 bg-gradient-ig text-white" : "bg-white"
+            open ? "rotate-45 bg-gradient-ig text-white" : "bg-card"
           }`}
         >
           +

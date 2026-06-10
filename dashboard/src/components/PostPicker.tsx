@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { Check } from "lucide-react";
 import { api, type Media } from "../api/client";
+import { cn } from "@/lib/utils";
 
 export function PostPicker({
   selectedId,
@@ -21,9 +23,10 @@ export function PostPicker({
       .catch(() => setError("Could not load posts."));
   }, []);
 
-  if (error) return <p className="text-sm text-rose-600">{error}</p>;
-  if (!media) return <p className="text-sm text-neutral-500">Loading posts…</p>;
-  if (media.length === 0) return <p className="text-sm text-neutral-500">No posts found on your account.</p>;
+  if (error) return <p className="text-sm text-destructive">{error}</p>;
+  if (!media) return <p className="text-sm text-muted-foreground">Loading posts…</p>;
+  if (media.length === 0)
+    return <p className="text-sm text-muted-foreground">No posts found on your account.</p>;
 
   return (
     <div className="grid max-h-64 grid-cols-3 gap-2 overflow-y-auto">
@@ -35,14 +38,22 @@ export function PostPicker({
             key={m.id}
             type="button"
             onClick={() => onSelect(m.id)}
-            className={`relative aspect-square overflow-hidden rounded-lg border-2 ${selected ? "border-fuchsia-600" : "border-neutral-200"}`}
+            className={cn(
+              "relative aspect-square overflow-hidden rounded-lg border-2 transition-colors",
+              selected ? "border-primary" : "border-border hover:border-input",
+            )}
           >
             {thumb ? (
               <img src={thumb} alt={m.caption ?? ""} className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-neutral-100 text-xs text-neutral-400">
+              <div className="flex h-full w-full items-center justify-center bg-secondary text-xs text-muted-foreground">
                 {m.mediaType}
               </div>
+            )}
+            {selected && (
+              <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <Check className="size-3" />
+              </span>
             )}
           </button>
         );

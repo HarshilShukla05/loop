@@ -14,7 +14,7 @@ const ITEMS = [
 
 export default function Marquee() {
   return (
-    <section className="relative border-y border-line bg-white/50 py-8">
+    <section className="relative border-y border-line bg-card/50 py-8">
       <p className="mb-6 text-center text-[12.5px] font-medium uppercase tracking-[0.18em] text-muted">
         Built for people who&apos;d rather create than babysit a CRM
       </p>

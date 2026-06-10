@@ -10,10 +10,9 @@ export default function Logo({ className = "" }: { className?: string }) {
         >
           <defs>
             <linearGradient id="loopGrad" x1="0" y1="0" x2="32" y2="32">
-              <stop offset="0" stopColor="#F58529" />
-              <stop offset="0.45" stopColor="#DD2A7B" />
-              <stop offset="0.75" stopColor="#8134AF" />
-              <stop offset="1" stopColor="#515BD4" />
+              <stop offset="0" stopColor="#E8A23D" />
+              <stop offset="0.5" stopColor="#E85D3D" />
+              <stop offset="1" stopColor="#C2402A" />
             </linearGradient>
           </defs>
           <path

@@ -41,7 +41,7 @@ export default function ChatDemo() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.35 }}
-            className="flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-ink ring-soft"
+            className="flex items-center gap-2 rounded-full border border-line bg-card px-3.5 py-1.5 text-[12.5px] font-medium text-ink ring-soft"
           >
             <span
               className={`flex h-1.5 w-1.5 rounded-full ${
@@ -56,12 +56,12 @@ export default function ChatDemo() {
       <motion.div
         animate={reduce ? {} : { y: [0, -6, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        className="overflow-hidden rounded-[28px] border border-line bg-white ring-lift"
+        className="overflow-hidden rounded-[28px] border border-line bg-card ring-lift"
       >
         {/* post header */}
         <div className="flex items-center gap-3 border-b border-line px-5 py-3.5">
           <div className="h-9 w-9 rounded-full bg-gradient-ig p-[2px]">
-            <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[13px] font-semibold">
+            <div className="flex h-full w-full items-center justify-center rounded-full bg-card text-[13px] font-semibold">
               🎬
             </div>
           </div>
@@ -73,9 +73,9 @@ export default function ChatDemo() {
         </div>
 
         {/* "media" */}
-        <div className="relative h-36 bg-[linear-gradient(120deg,#fde8f0,#ede7fb,#e6ecff)]">
+        <div className="relative h-36 bg-[linear-gradient(120deg,rgb(var(--coral-soft)),rgb(var(--paper)),rgb(var(--card)))]">
           <div className="absolute inset-0 grain opacity-60" />
-          <div className="absolute bottom-3 left-4 rounded-full bg-white/80 px-3 py-1 text-[12px] font-medium text-ink backdrop-blur">
+          <div className="absolute bottom-3 left-4 rounded-full bg-card/80 px-3 py-1 text-[12px] font-medium text-ink backdrop-blur">
             Comment <span className="text-gradient font-semibold">LINK</span> for
             the freebie 👇
           </div>
@@ -105,19 +105,19 @@ export default function ChatDemo() {
                 transition={{ duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
                 className="flex items-start justify-end gap-2.5"
               >
-                <div className="max-w-[78%] rounded-2xl rounded-tr-md bg-ink px-3.5 py-2.5 text-paper">
-                  <p className="text-[12px] font-medium text-paper/70">
+                <div className="max-w-[78%] rounded-2xl rounded-tr-md bg-coral px-3.5 py-2.5 text-white">
+                  <p className="text-[12px] font-medium text-white/75">
                     Auto-DM from loop
                   </p>
                   <p className="mt-0.5 text-[14px] leading-snug">
                     Hey Priya! Here&apos;s your freebie 🎁 → loop.so/drop
                   </p>
-                  <p className="mt-1.5 text-[12px] text-paper/60">
+                  <p className="mt-1.5 text-[12px] text-white/65">
                     ✓ Delivered · email saved to list
                   </p>
                 </div>
                 <div className="h-7 w-7 shrink-0 rounded-full bg-gradient-ig p-[2px]">
-                  <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[12px]">
+                  <div className="flex h-full w-full items-center justify-center rounded-full bg-card text-[12px]">
                     ∞
                   </div>
                 </div>

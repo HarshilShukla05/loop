@@ -26,4 +26,14 @@ export const handlers = [
   }),
 
   http.post(`${baseUrl}/auth/logout`, () => new HttpResponse(null, { status: 204 })),
+
+  http.get(`${baseUrl}/config`, () =>
+    HttpResponse.json({
+      privacyUrl: "http://localhost:3000/privacy",
+      termsUrl: "http://localhost:3000/terms",
+      dataDeletionUrl: "http://localhost:3000/data-deletion",
+    }),
+  ),
+
+  http.delete(`${baseUrl}/me`, () => new HttpResponse(null, { status: 204 })),
 ];

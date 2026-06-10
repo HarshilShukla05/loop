@@ -49,7 +49,7 @@ export default function HowItWorks() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="relative h-full rounded-4xl border border-line bg-white p-7 ring-soft"
+                className="relative h-full rounded-4xl border border-line bg-card p-7 ring-soft"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-[13px] font-semibold tracking-[0.1em] text-gradient">

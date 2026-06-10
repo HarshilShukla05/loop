@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,16 +9,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: "#FBFAF7",
-        ink: "#0A0A0A",
-        muted: "#6B6B6B",
-        line: "#ECEAE4",
-        // Instagram-derived accent — used sparingly
-        glow: {
-          orange: "#F58529",
-          pink: "#DD2A7B",
-          purple: "#8134AF",
-          blue: "#515BD4",
+        // Warm editorial tokens — RGB-channel CSS variables (see globals.css)
+        // declared with <alpha-value> so opacity modifiers like bg-card/80 work.
+        paper: "rgb(var(--paper) / <alpha-value>)",
+        ink: "rgb(var(--ink) / <alpha-value>)",
+        muted: "rgb(var(--muted) / <alpha-value>)",
+        line: "rgb(var(--line) / <alpha-value>)",
+        card: "rgb(var(--card) / <alpha-value>)",
+        coral: {
+          DEFAULT: "rgb(var(--coral) / <alpha-value>)",
+          dark: "rgb(var(--coral-dark) / <alpha-value>)",
+          soft: "rgb(var(--coral-soft) / <alpha-value>)",
+          deep: "rgb(var(--coral-deep) / <alpha-value>)",
         },
       },
       fontFamily: {

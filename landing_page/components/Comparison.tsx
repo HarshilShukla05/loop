@@ -55,7 +55,7 @@ export default function Comparison() {
         />
 
         <Reveal className="mt-14">
-          <div className="overflow-hidden rounded-4xl border border-line bg-white ring-soft">
+          <div className="overflow-hidden rounded-4xl border border-line bg-card ring-soft">
             {/* header */}
             <div className="grid grid-cols-[1.3fr,1fr,1fr] items-stretch">
               <div className="px-5 py-5 sm:px-7" />
