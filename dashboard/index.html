@@ -7,10 +7,12 @@
     <title>Loop — Turn comments into conversations</title>
     <script>
       // Apply the saved theme before first paint to avoid a flash of the wrong scheme.
-      const theme = localStorage.getItem("loop-theme");
-      if (theme === "dark" || (!theme && matchMedia("(prefers-color-scheme: dark)").matches)) {
-        document.documentElement.classList.add("dark");
-      }
+      (function () {
+        var theme = localStorage.getItem("loop-theme");
+        if (theme === "dark" || (!theme && matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
     </script>
   </head>
   <body>

@@ -3,14 +3,27 @@ import { ExternalLink, Trash2 } from "lucide-react";
 import { api, type Rule } from "../api/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function AutomationCard({ rule, onDeleted }: { rule: Rule; onDeleted: () => void }) {
+  const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const remove = async () => {
     setDeleting(true);
-    await api.DELETE("/rules/{id}", { params: { path: { id: rule.id } } });
-    onDeleted();
+    try {
+      await api.DELETE("/rules/{id}", { params: { path: { id: rule.id } } });
+      onDeleted();
+    } finally {
+      setDeleting(false);
+      setConfirming(false);
+    }
   };
 
   const scope = rule.mediaId ? "One post" : "All posts";
@@ -54,13 +67,43 @@ export function AutomationCard({ rule, onDeleted }: { rule: Rule; onDeleted: () 
       <Button
         variant="destructive"
         size="icon"
-        onClick={remove}
-        disabled={deleting}
+        onClick={() => setConfirming(true)}
         aria-label="Delete automation"
         className="shrink-0"
       >
         <Trash2 className="size-4" />
       </Button>
+
+      {confirming && (
+        <Dialog open onOpenChange={(open) => !open && !deleting && setConfirming(false)}>
+          <DialogContent className="max-w-md">
+            <DialogTitle>Delete this automation?</DialogTitle>
+            <DialogDescription>
+              {rule.keywords.length === 0 ? (
+                <>It replies to any comment on {scope.toLowerCase()}.</>
+              ) : (
+                <>
+                  It triggers on {rule.keywords.map((k) => `"${k}"`).join(", ")} for{" "}
+                  {scope.toLowerCase()}.
+                </>
+              )}{" "}
+              New comments will no longer get a DM.
+            </DialogDescription>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setConfirming(false)} disabled={deleting}>
+                Cancel
+              </Button>
+              <Button
+                onClick={remove}
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleting ? "Deleting…" : "Delete"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

@@ -1,9 +1,38 @@
-import { apiBaseUrl } from "../api/client";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { api, apiBaseUrl } from "../api/client";
 import { Wordmark } from "@/components/Wordmark";
 import { ThemeToggle } from "@/components/theme";
 import { Button } from "@/components/ui/button";
 
+const landingUrl = import.meta.env.VITE_LANDING_URL ?? "https://loop.so";
+
+const defaultLegal = {
+  privacyUrl: `${landingUrl}/privacy`,
+  termsUrl: `${landingUrl}/terms`,
+  dataDeletionUrl: `${landingUrl}/data-deletion`,
+};
+
 export function Login() {
+  const [legal, setLegal] = useState(defaultLegal);
+  const [params] = useSearchParams();
+  const deleted = params.get("deleted") === "1";
+
+  useEffect(() => {
+    let active = true;
+    api
+      .GET("/config")
+      .then(({ data, response }) => {
+        if (active && response.status === 200 && data) setLegal(data);
+      })
+      .catch(() => {
+        // keep the build-time fallback links
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const connect = () => window.location.assign(`${apiBaseUrl}/auth/instagram`);
 
   return (
@@ -15,6 +44,11 @@ export function Login() {
 
       <div className="flex flex-1 flex-col items-center justify-center pb-24">
         <div className="w-full max-w-md text-center">
+          {deleted && (
+            <p className="mb-8 rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
+              Your account and all stored data have been deleted. You can reconnect anytime.
+            </p>
+          )}
           <h1 className="font-display text-4xl leading-tight text-foreground sm:text-5xl">
             Turn comments into conversations
           </h1>
@@ -33,13 +67,13 @@ export function Login() {
       </div>
 
       <footer className="flex items-center justify-center gap-6 py-6 text-xs text-muted-foreground">
-        <a href="/privacy" className="transition-colors hover:text-foreground">
+        <a href={legal.privacyUrl} className="transition-colors hover:text-foreground">
           Privacy policy
         </a>
-        <a href="/terms" className="transition-colors hover:text-foreground">
+        <a href={legal.termsUrl} className="transition-colors hover:text-foreground">
           Terms of service
         </a>
-        <a href="/data-deletion" className="transition-colors hover:text-foreground">
+        <a href={legal.dataDeletionUrl} className="transition-colors hover:text-foreground">
           Data deletion
         </a>
       </footer>

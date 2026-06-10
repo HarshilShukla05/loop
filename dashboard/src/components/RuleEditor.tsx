@@ -131,10 +131,14 @@ export function RuleEditor({ onClose, onCreated }: { onClose: () => void; onCrea
           />
         </Section>
 
-        <Section title="Options (coming soon)">
-          <Toggle checked={requireFollow} onChange={setRequireFollow} label="Only reply if they follow me" />
-          <Toggle checked={captureEmail} onChange={setCaptureEmail} label="Capture their email" />
-        </Section>
+        {/* Hidden until the webhook→DM path enforces these flags — the
+            recorded review UI must only show working features. */}
+        {import.meta.env.VITE_SHOW_UPCOMING_OPTIONS === "true" && (
+          <Section title="Options (coming soon)">
+            <Toggle checked={requireFollow} onChange={setRequireFollow} label="Only reply if they follow me" />
+            <Toggle checked={captureEmail} onChange={setCaptureEmail} label="Capture their email" />
+          </Section>
+        )}
 
         {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
 

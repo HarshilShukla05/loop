@@ -14,10 +14,7 @@ const COLUMNS = [
   {
     title: "Company",
     links: [
-      { label: "About", href: "#" },
-      { label: "Blog", href: "#" },
-      { label: "Careers", href: "#" },
-      { label: "Contact", href: "#" },
+      { label: "Contact", href: "mailto:harshilshukla0502@gmail.com" },
     ],
   },
   {

@@ -5,6 +5,7 @@ import { api, apiBaseUrl, type Rule, type Session } from "../api/client";
 import { ReconnectBanner } from "../components/ReconnectBanner";
 import { AutomationCard } from "../components/AutomationCard";
 import { RuleEditor } from "../components/RuleEditor";
+import { DangerZone } from "../components/DangerZone";
 import { Wordmark } from "@/components/Wordmark";
 import { ThemeToggle } from "@/components/theme";
 import { Badge } from "@/components/ui/badge";
@@ -175,6 +176,8 @@ export function Dashboard() {
             )}
           </CardContent>
         </Card>
+
+        <DangerZone />
       </main>
 
       {editing && (

@@ -28,6 +28,26 @@ paths:
                     example: ok
                 required: [status]
 
+  /config:
+    get:
+      operationId: publicConfig
+      summary: Public client configuration (no auth required)
+      responses:
+        "200":
+          description: Public configuration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  privacyUrl:
+                    type: string
+                  termsUrl:
+                    type: string
+                  dataDeletionUrl:
+                    type: string
+                required: [privacyUrl, termsUrl, dataDeletionUrl]
+
   /me:
     get:
       operationId: session
@@ -39,6 +59,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Session"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: deleteAccount
+      summary: Delete the account and all stored data (Meta data-deletion path)
+      description: |
+        Permanently deletes the user's Loop account and everything associated
+        with it: the Instagram connection (access tokens, account identifiers),
+        cached media metadata, comment events, DM history, and automation
+        rules. Clears the session. This backs the self-service option promised
+        on the public data-deletion page.
+      responses:
+        "204":
+          description: Account and all data deleted; session cleared
         "401":
           description: Not authenticated
           content:

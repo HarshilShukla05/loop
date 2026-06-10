@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 const apiTarget = 'http://localhost:8080'
-const apiPaths = ['/auth', '/me', '/media', '/rules', '/healthz', '/webhooks']
+const apiPaths = ['/auth', '/me', '/media', '/rules', '/healthz', '/webhooks', '/config']
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],

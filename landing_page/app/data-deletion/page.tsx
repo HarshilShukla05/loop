@@ -33,7 +33,9 @@ export default function DataDeletion() {
           </li>
           <li>Find Loop and choose Remove.</li>
           <li>
-            Meta notifies us of the removal and we delete the data associated with your account.
+            This immediately revokes Loop&apos;s access to your account. To also erase the data we
+            already store, use Option 1 or Option 3 — both are available to everyone, including
+            after you&apos;ve removed the app.
           </li>
         </ol>
       </Section>
