@@ -52,7 +52,9 @@ func main() {
 	log.Printf("rule cache loaded: %d rules", cache.Count())
 
 	igConnector := instagram.New(cfg.MetaAppID, cfg.MetaAppSecret, cfg.MetaRedirectURI, cfg.GraphAPIVersion)
-	ingest := webhook.NewHandler(cfg.WebhookVerifyToken, igConnector, cache, queries)
+	// Enforce the X-Hub-Signature-256 except in local dev (DEV_AUTH=true), where
+	// unsigned manual test posts are convenient.
+	ingest := webhook.NewHandler(cfg.WebhookVerifyToken, igConnector, cache, queries, !cfg.DevAuth)
 	api := httpx.New(ingest, igConnector, conns, ruleSvc, cache, cfg.SessionSecret, cfg.DashboardURL, cfg.MarketingURL, cfg.SecureCookies, cfg.DevAuth)
 
 	limiter := ratelimit.New(pool, cfg.RateLimitPerHour)

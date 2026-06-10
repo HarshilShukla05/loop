@@ -32,10 +32,11 @@ type Handler struct {
 	parser      parser
 	matcher     matcher
 	enqueuer    enqueuer
+	strict      bool // reject on signature mismatch (off only for local dev)
 }
 
-func NewHandler(verifyToken string, p parser, m matcher, e enqueuer) *Handler {
-	return &Handler{verifyToken: verifyToken, parser: p, matcher: m, enqueuer: e}
+func NewHandler(verifyToken string, p parser, m matcher, e enqueuer, strict bool) *Handler {
+	return &Handler{verifyToken: verifyToken, parser: p, matcher: m, enqueuer: e, strict: strict}
 }
 
 // Verify answers Meta's GET subscription handshake.
@@ -61,9 +62,18 @@ func (h *Handler) Receive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf("webhook: received %d bytes", len(body))
+	// TEMP (remove after go-live): log the raw event once real webhooks flow, so
+	// we can confirm entry.id matches the stored external_account_id (the 1784… vs
+	// OAuth user_id question) before trusting the matcher.
+	log.Printf("webhook: raw event: %s", body)
+
 	if !h.parser.VerifySignature(body, r.Header.Get("X-Hub-Signature-256")) {
-		// Dev: still process so events are observable. Production must reject here.
-		log.Println("webhook: WARNING signature mismatch (processing anyway for dev visibility)")
+		if h.strict {
+			log.Println("webhook: signature mismatch — rejected")
+			http.Error(w, "invalid signature", http.StatusForbidden)
+			return
+		}
+		log.Println("webhook: WARNING signature mismatch (DEV_AUTH on — processing anyway)")
 	}
 
 	events, err := h.parser.ParseWebhook(body)
