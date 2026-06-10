@@ -31,6 +31,9 @@ func (f fakeAccounts) MarkSubscribed(context.Context, uuid.UUID, []string) error
 func (f fakeAccounts) Authorized(context.Context, uuid.UUID) (domain.ConnectedAccount, error) {
 	return domain.ConnectedAccount{}, nil
 }
+func (f fakeAccounts) AuthorizedByExternal(context.Context, string) (domain.ConnectedAccount, error) {
+	return domain.ConnectedAccount{}, nil
+}
 
 func requestWithSession(userID uuid.UUID) *http.Request {
 	req := httptest.NewRequest(http.MethodGet, "/me", nil)

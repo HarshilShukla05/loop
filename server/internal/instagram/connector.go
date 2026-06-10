@@ -1,6 +1,7 @@
 package instagram
 
 import (
+	"bytes"
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
@@ -33,6 +34,20 @@ var scopes = []string{
 }
 
 var _ port.SocialConnector = (*Connector)(nil)
+
+// APIError carries a non-2xx Graph API response so callers can classify
+// transient (retry) vs permanent (drop) failures by status code.
+type APIError struct {
+	Status int
+	Path   string
+	Body   string
+}
+
+func (e *APIError) Error() string {
+	return fmt.Sprintf("instagram %s: %d: %s", e.Path, e.Status, e.Body)
+}
+
+func (e *APIError) StatusCode() int { return e.Status }
 
 type Connector struct {
 	appID       string
@@ -166,6 +181,74 @@ func (c *Connector) Media(ctx context.Context, account domain.ConnectedAccount) 
 	return media, nil
 }
 
+// Comments lists the top-level comments on a media (GET /<media-id>/comments).
+// Used by the dev replay path to obtain real comment ids without webhooks.
+func (c *Connector) Comments(ctx context.Context, account domain.ConnectedAccount, mediaID string) ([]domain.Comment, error) {
+	log.Printf("instagram: fetching comments for media %s", mediaID)
+	endpoint := graphHost + "/" + mediaID + "/comments?" + url.Values{
+		"fields":       {"id,text,timestamp"},
+		"access_token": {account.AccessToken},
+	}.Encode()
+
+	var resp struct {
+		Data []struct {
+			ID        string `json:"id"`
+			Text      string `json:"text"`
+			Timestamp string `json:"timestamp"`
+		} `json:"data"`
+	}
+	if err := c.getJSON(ctx, endpoint, &resp); err != nil {
+		return nil, err
+	}
+
+	comments := make([]domain.Comment, len(resp.Data))
+	for i, cm := range resp.Data {
+		comments[i] = domain.Comment{ID: cm.ID, Text: cm.Text, Timestamp: cm.Timestamp}
+	}
+	return comments, nil
+}
+
+// SendDirectMessage sends a private reply to a comment and returns the message id.
+// POST /<ig-user-id>/messages with {recipient:{comment_id}, message:{text}}.
+func (c *Connector) SendDirectMessage(ctx context.Context, account domain.ConnectedAccount, commentID, text string) (string, error) {
+	log.Printf("instagram: sending private reply to comment %s (account %s)", commentID, account.ExternalID)
+	endpoint := fmt.Sprintf("%s/%s/%s/messages?access_token=%s",
+		graphHost, c.graphVer, account.ExternalID, url.QueryEscape(account.AccessToken))
+
+	payload := map[string]any{
+		"recipient": map[string]string{"comment_id": commentID},
+		"message":   map[string]string{"text": text},
+	}
+	var resp struct {
+		RecipientID string `json:"recipient_id"`
+		MessageID   string `json:"message_id"`
+	}
+	if err := c.postJSON(ctx, endpoint, payload, &resp); err != nil {
+		return "", err
+	}
+	return resp.MessageID, nil
+}
+
+// ReplyToComment posts a public reply under a comment and returns the new
+// comment id. Per Meta's IG Comment → Replies docs: POST /<comment-id>/replies
+// with `message` as a form param (NOT JSON, unlike the private reply), permission
+// instagram_business_manage_comments. Used to acknowledge the commenter publicly.
+func (c *Connector) ReplyToComment(ctx context.Context, account domain.ConnectedAccount, commentID, text string) (string, error) {
+	log.Printf("instagram: public reply to comment %s (account %s)", commentID, account.ExternalID)
+	endpoint := fmt.Sprintf("%s/%s/%s/replies", graphHost, c.graphVer, commentID)
+	form := url.Values{
+		"message":      {text},
+		"access_token": {account.AccessToken},
+	}
+	var resp struct {
+		ID string `json:"id"`
+	}
+	if err := c.postForm(ctx, endpoint, form, &resp); err != nil {
+		return "", err
+	}
+	return resp.ID, nil
+}
+
 func (c *Connector) VerifySignature(body []byte, signature string) bool {
 	mac := hmac.New(sha256.New, []byte(c.appSecret))
 	mac.Write(body)
@@ -224,6 +307,19 @@ func (c *Connector) postForm(ctx context.Context, endpoint string, form url.Valu
 	return c.do(req, out)
 }
 
+func (c *Connector) postJSON(ctx context.Context, endpoint string, payload, out any) error {
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	return c.do(req, out)
+}
+
 func (c *Connector) getJSON(ctx context.Context, endpoint string, out any) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
@@ -241,7 +337,7 @@ func (c *Connector) do(req *http.Request, out any) error {
 
 	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode >= 300 {
-		return fmt.Errorf("instagram %s: %d: %s", req.URL.Path, resp.StatusCode, string(body))
+		return &APIError{Status: resp.StatusCode, Path: req.URL.Path, Body: string(body)}
 	}
 	if out == nil {
 		return nil

@@ -101,6 +101,30 @@ func (s *Service) Account(ctx context.Context, userID uuid.UUID) (store.Connecti
 	return s.q.ConnectionByUser(ctx, userID)
 }
 
+// AuthorizedByExternal returns an account (token decrypted) by its Instagram id.
+// Used by dev tooling that runs outside a user session.
+func (s *Service) AuthorizedByExternal(ctx context.Context, externalAccountID string) (domain.ConnectedAccount, error) {
+	conn, err := s.q.ConnectionByExternal(ctx, store.ConnectionByExternalParams{
+		Platform:          domain.PlatformInstagram,
+		ExternalAccountID: externalAccountID,
+	})
+	if err != nil {
+		return domain.ConnectedAccount{}, err
+	}
+	token, err := s.cipher.Decrypt(conn.AccessTokenEnc)
+	if err != nil {
+		return domain.ConnectedAccount{}, err
+	}
+	return domain.ConnectedAccount{
+		Platform:       conn.Platform,
+		ExternalID:     conn.ExternalAccountID,
+		Username:       conn.Username,
+		AccessToken:    token,
+		TokenExpiresAt: conn.TokenExpiresAt,
+		Scopes:         conn.Scopes,
+	}, nil
+}
+
 // Authorized returns the user's account with its access token decrypted, ready
 // for Meta calls. The plaintext token never leaves this boundary in stored form.
 func (s *Service) Authorized(ctx context.Context, userID uuid.UUID) (domain.ConnectedAccount, error) {

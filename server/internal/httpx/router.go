@@ -25,6 +25,7 @@ const (
 type accounts interface {
 	Account(ctx context.Context, userID uuid.UUID) (store.Connection, error)
 	Authorized(ctx context.Context, userID uuid.UUID) (domain.ConnectedAccount, error)
+	AuthorizedByExternal(ctx context.Context, externalAccountID string) (domain.ConnectedAccount, error)
 	Connect(ctx context.Context, acc domain.ConnectedAccount) (store.Connection, error)
 	MarkSubscribed(ctx context.Context, connectionID uuid.UUID, fields []string) error
 }
@@ -35,6 +36,8 @@ type connector interface {
 	ExchangeCode(ctx context.Context, code string) (domain.ConnectedAccount, error)
 	Subscribe(ctx context.Context, account domain.ConnectedAccount, fields []string) error
 	Media(ctx context.Context, account domain.ConnectedAccount) ([]domain.Media, error)
+	Comments(ctx context.Context, account domain.ConnectedAccount, mediaID string) ([]domain.Comment, error)
+	SendDirectMessage(ctx context.Context, account domain.ConnectedAccount, commentID, text string) (string, error)
 }
 
 // ruleService is the slice of the rules service this layer drives.
@@ -48,6 +51,7 @@ type ruleService interface {
 type ruleCache interface {
 	AddRule(externalAccountID string, mediaID *string, r rulecache.Rule)
 	RemoveRule(externalAccountID string, ruleID uuid.UUID)
+	Match(e domain.EngagementEvent) (rulecache.Match, bool)
 }
 
 type API struct {
@@ -94,6 +98,7 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("DELETE /rules/{id}", a.deleteRule)
 	if a.devAuth {
 		mux.HandleFunc("POST /auth/dev-login", a.devLogin)
+		mux.HandleFunc("POST /dev/replay/{accountId}/{mediaId}", a.devReplay)
 	}
 	return cors(a.dashboardURL, mux)
 }
