@@ -6,29 +6,29 @@
   --font-inter: "Inter", sans-serif;
   --font-serif: Georgia, serif;
 
-  /* Warm editorial — light */
-  --paper: #faf9f6;
-  --ink: #1c1b17;
-  --muted: #87837a;
-  --line: #e8e5dd;
-  --card: #ffffff;
-  --coral: #e85d3d;
-  --coral-dark: #c2402a;
-  --coral-soft: #fbe9e2;
-  --coral-deep: #9c3a22;
+  /* Warm editorial — light. RGB channels so Tailwind opacity modifiers work. */
+  --paper: 250 249 246;
+  --ink: 28 27 23;
+  --muted: 135 131 122;
+  --line: 232 229 221;
+  --card: 255 255 255;
+  --coral: 232 93 61;
+  --coral-dark: 194 64 42;
+  --coral-soft: 251 233 226;
+  --coral-deep: 156 58 34;
 }
 
 .dark {
   /* Warm editorial — dark */
-  --paper: #161513;
-  --ink: #f0eee8;
-  --muted: #9b968a;
-  --line: #2c2923;
-  --card: #1e1c19;
-  --coral: #f0684a;
-  --coral-dark: #e25940;
-  --coral-soft: #38231c;
-  --coral-deep: #f4a48d;
+  --paper: 22 21 19;
+  --ink: 240 238 232;
+  --muted: 155 150 138;
+  --line: 44 41 35;
+  --card: 30 28 25;
+  --coral: 240 104 74;
+  --coral-dark: 226 89 64;
+  --coral-soft: 56 35 28;
+  --coral-deep: 244 164 141;
 }
 
 html {
@@ -38,8 +38,8 @@ html {
 }
 
 body {
-  background: var(--paper);
-  color: var(--ink);
+  background: rgb(var(--paper));
+  color: rgb(var(--ink));
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -47,14 +47,14 @@ body {
 @layer utilities {
   /* Warm coral gradient text — the one accent we lean on */
   .text-gradient {
-    background-image: linear-gradient(92deg, var(--coral) 0%, var(--coral-dark) 60%, var(--coral-deep) 100%);
+    background-image: linear-gradient(92deg, rgb(var(--coral)) 0%, rgb(var(--coral-dark)) 60%, rgb(var(--coral-deep)) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
   .bg-gradient-ig {
-    background-image: linear-gradient(92deg, var(--coral) 0%, var(--coral-dark) 100%);
+    background-image: linear-gradient(92deg, rgb(var(--coral)) 0%, rgb(var(--coral-dark)) 100%);
   }
 
   .serif-italic {
@@ -86,7 +86,7 @@ body {
 }
 
 ::selection {
-  background: var(--coral);
+  background: rgb(var(--coral));
   color: #fff8f4;
 }
 
@@ -107,10 +107,10 @@ body {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--paper);
+  background: rgb(var(--paper));
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--line);
+  background: rgb(var(--line));
   border-radius: 999px;
-  border: 3px solid var(--paper);
+  border: 3px solid rgb(var(--paper));
 }

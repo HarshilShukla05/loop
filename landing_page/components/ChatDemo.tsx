@@ -73,7 +73,7 @@ export default function ChatDemo() {
         </div>
 
         {/* "media" */}
-        <div className="relative h-36 bg-[linear-gradient(120deg,var(--coral-soft),var(--paper),var(--card))]">
+        <div className="relative h-36 bg-[linear-gradient(120deg,rgb(var(--coral-soft)),rgb(var(--paper)),rgb(var(--card)))]">
           <div className="absolute inset-0 grain opacity-60" />
           <div className="absolute bottom-3 left-4 rounded-full bg-card/80 px-3 py-1 text-[12px] font-medium text-ink backdrop-blur">
             Comment <span className="text-gradient font-semibold">LINK</span> for

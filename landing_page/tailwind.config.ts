@@ -9,18 +9,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Warm editorial tokens — CSS variables so dark mode flips everything.
-        // Values live in app/globals.css (:root and .dark).
-        paper: "var(--paper)",
-        ink: "var(--ink)",
-        muted: "var(--muted)",
-        line: "var(--line)",
-        card: "var(--card)",
+        // Warm editorial tokens — RGB-channel CSS variables (see globals.css)
+        // declared with <alpha-value> so opacity modifiers like bg-card/80 work.
+        paper: "rgb(var(--paper) / <alpha-value>)",
+        ink: "rgb(var(--ink) / <alpha-value>)",
+        muted: "rgb(var(--muted) / <alpha-value>)",
+        line: "rgb(var(--line) / <alpha-value>)",
+        card: "rgb(var(--card) / <alpha-value>)",
         coral: {
-          DEFAULT: "var(--coral)",
-          dark: "var(--coral-dark)",
-          soft: "var(--coral-soft)",
-          deep: "var(--coral-deep)",
+          DEFAULT: "rgb(var(--coral) / <alpha-value>)",
+          dark: "rgb(var(--coral-dark) / <alpha-value>)",
+          soft: "rgb(var(--coral-soft) / <alpha-value>)",
+          deep: "rgb(var(--coral-deep) / <alpha-value>)",
         },
       },
       fontFamily: {
