@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,16 +9,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Warm editorial tokens — shared with the dashboard design system
-        paper: "#FAF9F6",
-        ink: "#1C1B17",
-        muted: "#87837A",
-        line: "#E8E5DD",
+        // Warm editorial tokens — CSS variables so dark mode flips everything.
+        // Values live in app/globals.css (:root and .dark).
+        paper: "var(--paper)",
+        ink: "var(--ink)",
+        muted: "var(--muted)",
+        line: "var(--line)",
+        card: "var(--card)",
         coral: {
-          DEFAULT: "#E85D3D",
-          dark: "#C2402A",
-          soft: "#FBE9E2",
-          deep: "#9C3A22",
+          DEFAULT: "var(--coral)",
+          dark: "var(--coral-dark)",
+          soft: "var(--coral-soft)",
+          deep: "var(--coral-deep)",
         },
       },
       fontFamily: {

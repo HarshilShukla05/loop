@@ -24,7 +24,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="group inline-flex items-center gap-2 rounded-full border border-line bg-white/70 px-3.5 py-1.5 text-[13px] text-muted backdrop-blur-sm"
+            className="group inline-flex items-center gap-2 rounded-full border border-line bg-card/70 px-3.5 py-1.5 text-[13px] text-muted backdrop-blur-sm"
           >
             <span className="flex h-1.5 w-1.5 rounded-full bg-gradient-ig" />
             Instagram DM automation, minus the ManyChat tax

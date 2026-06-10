@@ -20,7 +20,7 @@ export default function Pricing() {
   return (
     <section
       id="pricing"
-      className="relative bg-white/40 px-4 py-24 sm:py-32"
+      className="relative bg-card/40 px-4 py-24 sm:py-32"
     >
       <div className="mx-auto max-w-5xl">
         <SectionHeading
@@ -38,7 +38,7 @@ export default function Pricing() {
           <motion.div
             whileHover={{ y: -6 }}
             transition={{ type: "spring", stiffness: 280, damping: 22 }}
-            className="relative overflow-hidden rounded-[32px] border border-line bg-white p-1.5 ring-lift"
+            className="relative overflow-hidden rounded-[32px] border border-line bg-card p-1.5 ring-lift"
           >
             {/* gradient top edge */}
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-ig" />

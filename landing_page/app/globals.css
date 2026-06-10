@@ -5,6 +5,30 @@
 :root {
   --font-inter: "Inter", sans-serif;
   --font-serif: Georgia, serif;
+
+  /* Warm editorial — light */
+  --paper: #faf9f6;
+  --ink: #1c1b17;
+  --muted: #87837a;
+  --line: #e8e5dd;
+  --card: #ffffff;
+  --coral: #e85d3d;
+  --coral-dark: #c2402a;
+  --coral-soft: #fbe9e2;
+  --coral-deep: #9c3a22;
+}
+
+.dark {
+  /* Warm editorial — dark */
+  --paper: #161513;
+  --ink: #f0eee8;
+  --muted: #9b968a;
+  --line: #2c2923;
+  --card: #1e1c19;
+  --coral: #f0684a;
+  --coral-dark: #e25940;
+  --coral-soft: #38231c;
+  --coral-deep: #f4a48d;
 }
 
 html {
@@ -14,22 +38,23 @@ html {
 }
 
 body {
-  background: #faf9f6;
-  color: #1c1b17;
+  background: var(--paper);
+  color: var(--ink);
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @layer utilities {
   /* Warm coral gradient text — the one accent we lean on */
   .text-gradient {
-    background-image: linear-gradient(92deg, #e85d3d 0%, #c2402a 60%, #9c3a22 100%);
+    background-image: linear-gradient(92deg, var(--coral) 0%, var(--coral-dark) 60%, var(--coral-deep) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
   .bg-gradient-ig {
-    background-image: linear-gradient(92deg, #e85d3d 0%, #c2402a 100%);
+    background-image: linear-gradient(92deg, var(--coral) 0%, var(--coral-dark) 100%);
   }
 
   .serif-italic {
@@ -61,7 +86,7 @@ body {
 }
 
 ::selection {
-  background: #e85d3d;
+  background: var(--coral);
   color: #fff8f4;
 }
 
@@ -82,10 +107,10 @@ body {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #faf9f6;
+  background: var(--paper);
 }
 ::-webkit-scrollbar-thumb {
-  background: #e2ded6;
+  background: var(--line);
   border-radius: 999px;
-  border: 3px solid #faf9f6;
+  border: 3px solid var(--paper);
 }

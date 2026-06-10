@@ -21,7 +21,7 @@ export default function SectionHeading({
         isCenter ? "items-center text-center" : "items-start text-left"
       }`}
     >
-      <span className="inline-flex items-center gap-2 rounded-full border border-line bg-white/70 px-3 py-1 text-[12.5px] font-medium uppercase tracking-[0.14em] text-muted">
+      <span className="inline-flex items-center gap-2 rounded-full border border-line bg-card/70 px-3 py-1 text-[12.5px] font-medium uppercase tracking-[0.14em] text-muted">
         <span className="h-1.5 w-1.5 rounded-full bg-gradient-ig" />
         {eyebrow}
       </span>

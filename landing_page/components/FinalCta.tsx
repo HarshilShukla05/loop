@@ -36,14 +36,14 @@ export default function FinalCta() {
               <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <MagneticButton
                   href="#pricing"
-                  className="!bg-paper !text-ink hover:!bg-white"
+                  className="!bg-paper !text-ink hover:!bg-card"
                 >
                   Start now — ₹200/mo
                   <span aria-hidden>→</span>
                 </MagneticButton>
                 <a
                   href="#how"
-                  className="rounded-full border border-white/20 px-7 py-3.5 text-[15px] font-medium text-paper/90 transition-colors hover:bg-white/5"
+                  className="rounded-full border border-paper/25 px-7 py-3.5 text-[15px] font-medium text-paper/90 transition-colors hover:bg-paper/10"
                 >
                   See how it works
                 </a>

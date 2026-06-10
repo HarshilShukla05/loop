@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export const SUPPORT_EMAIL = "harshilshukla0502@gmail.com"; // TODO: move to support@<final-domain>
 
@@ -21,7 +22,7 @@ export function LegalPage({
           <Link href="/" className="font-serif text-2xl lowercase">
             loop<span className="text-coral">.</span>
           </Link>
-          <nav className="flex gap-5 text-sm text-muted">
+          <nav className="flex items-center gap-5 text-sm text-muted">
             <Link href="/privacy" className="transition-colors hover:text-ink">
               Privacy
             </Link>
@@ -31,6 +32,7 @@ export function LegalPage({
             <Link href="/data-deletion" className="transition-colors hover:text-ink">
               Data deletion
             </Link>
+            <ThemeToggle />
           </nav>
         </div>
       </header>
