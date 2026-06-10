@@ -45,6 +45,12 @@ type DmOutbox struct {
 	SentAt            *time.Time `json:"sent_at"`
 }
 
+type RateLimit struct {
+	ExternalAccountID string    `json:"external_account_id"`
+	Tokens            float64   `json:"tokens"`
+	UpdatedAt         time.Time `json:"updated_at"`
+}
+
 type Rule struct {
 	ID              uuid.UUID `json:"id"`
 	ConnectionID    uuid.UUID `json:"connection_id"`

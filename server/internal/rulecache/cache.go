@@ -77,6 +77,7 @@ func (c *Cache) Load(ctx context.Context) error {
 
 // AddRule registers a freshly created rule. Call AFTER the DB insert commits.
 func (c *Cache) AddRule(externalAccountID string, mediaID *string, r Rule) {
+	r.Keywords = lowerAll(r.Keywords) // Match compares against lowercased text
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	ar := c.byAccount[externalAccountID]
@@ -174,9 +175,22 @@ func ruleFromRow(row store.RulesForCacheRow) Rule {
 	return Rule{
 		ID:            row.RuleID,
 		ConnectionID:  row.ConnectionID,
-		Keywords:      row.Keywords,
+		Keywords:      lowerAll(row.Keywords),
 		Body:          row.ResponseMessage,
 		Link:          row.ResponseLink,
 		RequireFollow: row.RequireFollow,
 	}
+}
+
+// lowerAll lowercases every keyword so matching is case-insensitive regardless
+// of how the keyword was typed when the rule was created.
+func lowerAll(ks []string) []string {
+	if ks == nil {
+		return nil
+	}
+	out := make([]string, len(ks))
+	for i, k := range ks {
+		out[i] = strings.ToLower(k)
+	}
+	return out
 }

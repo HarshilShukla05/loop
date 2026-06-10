@@ -25,8 +25,16 @@ type Querier interface {
 	RetryJob(ctx context.Context, arg RetryJobParams) error
 	RulesByConnection(ctx context.Context, connectionID uuid.UUID) ([]Rule, error)
 	RulesForCache(ctx context.Context) ([]RulesForCacheRow, error)
+	// SeedRateBucket ensures a full bucket exists for the account. ON CONFLICT DO
+	// NOTHING means no write (and no dead tuple) after the first sighting.
+	SeedRateBucket(ctx context.Context, arg SeedRateBucketParams) error
 	SetSubscription(ctx context.Context, arg SetSubscriptionParams) error
 	TouchUserLogin(ctx context.Context, id uuid.UUID) error
+	// TryConsumeToken atomically refills then consumes one token, but only if at
+	// least one token is available after the refill (the WHERE guard). It returns
+	// the remaining tokens on success; zero rows (pgx.ErrNoRows) means denied. The
+	// single UPDATE takes the row lock, so concurrent callers can never double-spend.
+	TryConsumeToken(ctx context.Context, arg TryConsumeTokenParams) (float64, error)
 	UpdateConnectionTokens(ctx context.Context, arg UpdateConnectionTokensParams) (Connection, error)
 }
 

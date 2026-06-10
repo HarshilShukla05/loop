@@ -35,6 +35,15 @@ func TestMatchKeywordCaseInsensitive(t *testing.T) {
 	}
 }
 
+func TestMatchUppercaseKeyword(t *testing.T) {
+	c := newTestCache()
+	// keyword typed in uppercase must still match lowercase comment text
+	c.AddRule("acct", nil, Rule{ID: uuid.New(), Keywords: []string{"LINK"}, Body: "x"})
+	if _, ok := c.Match(ev("acct", "m1", "drop the link")); !ok {
+		t.Fatal("uppercase keyword should match lowercased comment text")
+	}
+}
+
 func TestMediaSpecificBeatsAllPosts(t *testing.T) {
 	c := newTestCache()
 	mid := "m1"
