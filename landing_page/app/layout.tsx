@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -8,12 +8,12 @@ const inter = Inter({
   display: "swap",
 });
 
-const serif = Instrument_Serif({
+const serif = Fraunces({
   subsets: ["latin"],
-  weight: "400",
   style: ["normal", "italic"],
   variable: "--font-serif",
   display: "swap",
+  axes: ["opsz"],
 });
 
 const SITE_URL = "https://loop.so";
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FBFAF7",
+  themeColor: "#FAF9F6",
 };
 
 export default function RootLayout({

@@ -8,16 +8,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: "#FBFAF7",
-        ink: "#0A0A0A",
-        muted: "#6B6B6B",
-        line: "#ECEAE4",
-        // Instagram-derived accent — used sparingly
-        glow: {
-          orange: "#F58529",
-          pink: "#DD2A7B",
-          purple: "#8134AF",
-          blue: "#515BD4",
+        // Warm editorial tokens — shared with the dashboard design system
+        paper: "#FAF9F6",
+        ink: "#1C1B17",
+        muted: "#87837A",
+        line: "#E8E5DD",
+        coral: {
+          DEFAULT: "#E85D3D",
+          dark: "#C2402A",
+          soft: "#FBE9E2",
+          deep: "#9C3A22",
         },
       },
       fontFamily: {

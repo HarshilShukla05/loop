@@ -114,7 +114,46 @@ These match `server/internal/instagram/connector.go:29-33`.
 - [ ] `POST /{ig-user-id}/subscribed_apps` succeeding (already implemented in
       `connector.go:121-129`).
 
-## 6. Screencast requirements (drives the UI/UX redesign)
+## 5½. Policy pages — exactly what Meta requires in them
+
+These live on the marketing site and their URLs go into App Dashboard → Settings → Basic.
+
+### Privacy Policy (`/privacy`) — required field in App Dashboard
+Per Meta Platform Terms §3.d and §4, the policy must:
+- Be on an **active, publicly available, non-geoblocked HTTPS URL**, crawlable by
+  Meta's bots (no login wall, no geo-restriction).
+- **Clearly explain what Platform Data we process** — for Loop: Instagram account
+  ID + username, media list/metadata, comments (text, commenter ID/username) on the
+  creator's posts, the DMs we send on the creator's behalf, access tokens.
+- Explain **how** we process it and **for what purposes** (operate the
+  comment→DM automation the creator configures; nothing else).
+- State **how users may request deletion**, and that the deletion right is
+  **available to all users who can access the app** (self-service + email path).
+- Cover retention: keep data only while necessary; delete promptly on user
+  request, on account disconnect/termination, or when no longer needed.
+- Disclose sharing (Meta via the API, hosting, payment processor) — and that we
+  don't sell Platform Data (selling/licensing Platform Data is prohibited).
+- Processing must actually match the policy — we may only process data
+  "as clearly described in your privacy policy."
+
+### Data deletion (`/data-deletion`) — second required field in App Dashboard
+Meta accepts either a **Data Deletion Callback URL** (receives a signed request
+when a user removes the app from their Instagram/Facebook settings; must delete
+the data and return `{url, confirmation_code}` JSON for status tracking) **or a
+human-readable Data Deletion Instructions URL**. The instructions page must give
+users a clear way to request deletion and a way to know the status/outcome of
+their request. Plan: ship the instructions URL now, add the callback endpoint to
+the Go server later (it's the better UX and fully automates compliance).
+
+### Terms of Service (`/terms`) — not a Meta-required field, but expected
+Should cover: service description, account eligibility (IG professional accounts),
+acceptable use (no spam; users must comply with Meta Platform Terms and Instagram
+Community Guidelines — DMs only triggered by the commenter's own action),
+subscription/billing (₹200/mo), cancellation, disclaimers/liability, termination,
+governing law. Indian payment gateways (Razorpay et al.) also require a published
+**refund/cancellation policy** (`/refunds`).
+
+
 
 Official technical/presentation rules:
 
