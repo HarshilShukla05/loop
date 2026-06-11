@@ -13,10 +13,37 @@ const defaultLegal = {
   dataDeletionUrl: `${landingUrl}/data-deletion`,
 };
 
+// Friendly copy for the ?error= codes the OAuth callback can redirect with.
+const oauthErrors: Record<string, { title: string; body: string }> = {
+  access_denied: {
+    title: "Connection cancelled",
+    body: "Loop needs all three permissions on the Instagram consent screen to work — they let us see your posts, spot keyword comments, and send your reply. Nothing happens without your approval, and you can disconnect anytime.",
+  },
+  not_professional: {
+    title: "Professional account needed",
+    body: "Loop works with Instagram Business or Creator accounts. Switch in Instagram under Settings → Account type and tools, then connect again — it's free and takes a minute.",
+  },
+  exchange_failed: {
+    title: "Instagram didn't complete the connection",
+    body: "Something went wrong on Instagram's side while connecting. Please try again in a moment.",
+  },
+  connect_failed: {
+    title: "We couldn't finish setting up",
+    body: "Your Instagram login worked, but saving the connection failed on our side. Please try again — if it keeps happening, email us.",
+  },
+};
+
+const fallbackError = {
+  title: "Connection didn't go through",
+  body: "Something interrupted the Instagram connection. Please try again.",
+};
+
 export function Login() {
   const [legal, setLegal] = useState(defaultLegal);
   const [params] = useSearchParams();
   const deleted = params.get("deleted") === "1";
+  const errorCode = params.get("error");
+  const oauthError = errorCode ? (oauthErrors[errorCode] ?? fallbackError) : null;
 
   useEffect(() => {
     let active = true;
@@ -48,6 +75,12 @@ export function Login() {
             <p className="mb-8 rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
               Your account and all stored data have been deleted. You can reconnect anytime.
             </p>
+          )}
+          {oauthError && (
+            <div className="mb-8 rounded-xl border border-warning/30 bg-warning-soft px-4 py-3 text-left">
+              <p className="text-sm font-medium text-warning">{oauthError.title}</p>
+              <p className="mt-1 text-sm text-warning/90">{oauthError.body}</p>
+            </div>
           )}
           <h1 className="font-display text-4xl leading-tight text-foreground sm:text-5xl">
             Turn comments into conversations

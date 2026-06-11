@@ -87,7 +87,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** OAuth callback; sets session cookie, redirects to the dashboard */
+        /**
+         * OAuth callback; sets session cookie, redirects to the dashboard
+         * @description On success redirects to {dashboardURL}/dashboard. On any failure it
+         *     must redirect to {dashboardURL}/?error=<code> (never the API origin,
+         *     never a raw error page) so the login screen can explain. Error codes:
+         *     access_denied (user declined), not_professional (account is not a
+         *     Business/Creator account), exchange_failed, connect_failed.
+         */
         get: operations["instagramCallback"];
         put?: never;
         post?: never;
@@ -166,6 +173,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recent automation activity (comment matched → DM queued/sent)
+         * @description Newest-first feed of automation events for the connected account,
+         *     sourced from the dm_outbox: which comment matched which rule, the DM
+         *     we sent (or are sending), and its delivery status. Powers the
+         *     dashboard Activity card — the in-app proof of the messages
+         *     permission for Meta App Review.
+         */
+        get: operations["listActivity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -223,6 +254,28 @@ export interface components {
             requireFollow: boolean;
             /** @default false */
             captureEmail: boolean;
+        };
+        ActivityItem: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            ruleId: string;
+            /** @description post the rule was scoped to; null for all-posts rules */
+            mediaId: string | null;
+            commentId: string;
+            commenterId: string;
+            /** @description Optional. Only populate if we decide to keep the username from the webhook payload (requires a privacy-policy line); UI falls back to "someone" when null. */
+            commenterUsername: string | null;
+            /** @description null when the rule replies to any comment */
+            matchedKeyword: string | null;
+            /** @description the DM text that was sent */
+            message: string;
+            link: string | null;
+            /** @enum {string} */
+            status: "queued" | "sent" | "failed";
+            /** Format: date-time */
+            createdAt: string;
+            sentAt: string | null;
         };
     };
     responses: never;
@@ -366,7 +419,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Redirect to dashboard */
+            /** @description Redirect to dashboard (or to /?error=<code> on failure) */
             302: {
                 headers: {
                     [name: string]: unknown;
@@ -528,6 +581,39 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    listActivity: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Activity list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["ActivityItem"][];
+                    };
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
         };
     };

@@ -96,6 +96,12 @@ paths:
     get:
       operationId: instagramCallback
       summary: OAuth callback; sets session cookie, redirects to the dashboard
+      description: |
+        On success redirects to {dashboardURL}/dashboard. On any failure it
+        must redirect to {dashboardURL}/?error=<code> (never the API origin,
+        never a raw error page) so the login screen can explain. Error codes:
+        access_denied (user declined), not_professional (account is not a
+        Business/Creator account), exchange_failed, connect_failed.
       parameters:
         - name: code
           in: query
@@ -107,7 +113,7 @@ paths:
             type: string
       responses:
         "302":
-          description: Redirect to dashboard
+          description: Redirect to dashboard (or to /?error=<code> on failure)
 
   /auth/logout:
     post:
@@ -211,6 +217,43 @@ paths:
           description: Not authenticated
         "404":
           description: Not found
+
+  /activity:
+    get:
+      operationId: listActivity
+      summary: Recent automation activity (comment matched → DM queued/sent)
+      description: |
+        Newest-first feed of automation events for the connected account,
+        sourced from the dm_outbox: which comment matched which rule, the DM
+        we sent (or are sending), and its delivery status. Powers the
+        dashboard Activity card — the in-app proof of the messages
+        permission for Meta App Review.
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+      responses:
+        "200":
+          description: Activity list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ActivityItem"
+                required: [items]
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
   schemas:
@@ -333,3 +376,55 @@ components:
           type: boolean
           default: false
       required: [mediaId, keywords, responseMessage]
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ruleId:
+          type: string
+          format: uuid
+        mediaId:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: post the rule was scoped to; null for all-posts rules
+        commentId:
+          type: string
+        commenterId:
+          type: string
+        commenterUsername:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: >
+            Optional. Only populate if we decide to keep the username from the
+            webhook payload (requires a privacy-policy line); UI falls back to
+            "someone" when null.
+        matchedKeyword:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: null when the rule replies to any comment
+        message:
+          type: string
+          description: the DM text that was sent
+        link:
+          oneOf:
+            - type: string
+            - type: "null"
+        status:
+          type: string
+          enum: [queued, sent, failed]
+        createdAt:
+          type: string
+          format: date-time
+        sentAt:
+          oneOf:
+            - type: string
+              format: date-time
+            - type: "null"
+      required:
+        [id, ruleId, mediaId, commentId, commenterId, commenterUsername, matchedKeyword, message, link, status, createdAt, sentAt]
