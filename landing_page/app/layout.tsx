@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
+import CursorGlow from "@/components/ui/CursorGlow";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -70,7 +71,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <CursorGlow />
+        {children}
+      </body>
     </html>
   );
 }
