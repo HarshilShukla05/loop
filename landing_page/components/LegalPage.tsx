@@ -29,8 +29,8 @@ export function LegalPage({
             <Link href="/terms" className="transition-colors hover:text-ink">
               Terms
             </Link>
-            <Link href="/data-deletion" className="transition-colors hover:text-ink">
-              Data deletion
+            <Link href="/refunds" className="transition-colors hover:text-ink">
+              Refunds
             </Link>
             <ThemeToggle />
           </nav>
@@ -57,9 +57,17 @@ export function LegalPage({
   );
 }
 
-export function Section({ title, children }: { title: string; children: ReactNode }) {
+export function Section({
+  title,
+  id,
+  children,
+}: {
+  title: string;
+  id?: string;
+  children: ReactNode;
+}) {
   return (
-    <section className="mt-10 first:mt-0">
+    <section id={id} className="mt-10 scroll-mt-24 first:mt-0">
       <h2 className="font-serif text-2xl">{title}</h2>
       <div className="mt-3 space-y-3 leading-relaxed text-ink/80">{children}</div>
     </section>

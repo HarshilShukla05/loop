@@ -71,9 +71,10 @@ paths:
       description: |
         Permanently deletes the user's Loop account and everything associated
         with it: the Instagram connection (access tokens, account identifiers),
-        cached media metadata, comment events, DM history, and automation
-        rules. Clears the session. This backs the self-service option promised
-        on the public data-deletion page.
+        the post IDs referenced by rules, matched-comment records (comment and
+        commenter IDs), sent-DM history, and automation rules. Clears the
+        session. This backs the self-service option promised on the public
+        data-deletion page. (No media content or comment text is ever stored.)
       responses:
         "204":
           description: Account and all data deleted; session cleared

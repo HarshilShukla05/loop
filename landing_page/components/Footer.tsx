@@ -23,7 +23,6 @@ const COLUMNS = [
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
       { label: "Refund policy", href: "/refunds" },
-      { label: "Data deletion", href: "/data-deletion" },
     ],
   },
 ];
