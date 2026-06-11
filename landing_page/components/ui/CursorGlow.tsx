@@ -8,7 +8,7 @@ const INTERACTIVE =
 
 /**
  * Site-wide cursor companion: a soft coral light that drifts after the
- * pointer, and a quiet ring that only wakes up over interactive elements.
+ * pointer and breathes slightly over interactive elements.
  * Never replaces or hides the native cursor, never intercepts events.
  * Renders nothing on coarse pointers and for reduced-motion users.
  */
