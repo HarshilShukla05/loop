@@ -5,7 +5,7 @@ import { api, apiBaseUrl, type Rule, type Session } from "../api/client";
 import { ReconnectBanner } from "../components/ReconnectBanner";
 import { AutomationCard } from "../components/AutomationCard";
 import { RuleEditor } from "../components/RuleEditor";
-import { ActivityFeed } from "../components/ActivityFeed";
+import { ReachStats } from "../components/ReachStats";
 import { DangerZone } from "../components/DangerZone";
 import { Wordmark } from "@/components/Wordmark";
 import { ThemeToggle } from "@/components/theme";
@@ -178,7 +178,7 @@ export function Dashboard() {
           </CardContent>
         </Card>
 
-        <ActivityFeed />
+        <ReachStats />
 
         <DangerZone />
       </main>

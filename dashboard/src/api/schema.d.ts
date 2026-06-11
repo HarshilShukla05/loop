@@ -173,7 +173,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/activity": {
+    "/stats": {
         parameters: {
             query?: never;
             header?: never;
@@ -181,14 +181,16 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Recent automation activity (comment matched → DM queued/sent)
-         * @description Newest-first feed of automation events for the connected account,
-         *     sourced from the dm_outbox: which comment matched which rule, the DM
-         *     we sent (or are sending), and its delivery status. Powers the
-         *     dashboard Activity card — the in-app proof of the messages
-         *     permission for Meta App Review.
+         * Reach stats — aggregate automation funnel per window and per post
+         * @description Aggregate counters for the connected account, for a time window:
+         *     comments seen on automated posts -> comments that matched a keyword
+         *     (eligible) -> DMs delivered. previousTotals covers the equally long
+         *     window immediately before (null for window=all) so the UI can show
+         *     deltas. perPost groups by media: mediaId=null bucket collects
+         *     all-posts rules. Designed to gain a "followed" stage when
+         *     follow-gating ships.
          */
-        get: operations["listActivity"];
+        get: operations["getStats"];
         put?: never;
         post?: never;
         delete?: never;
@@ -255,27 +257,32 @@ export interface components {
             /** @default false */
             captureEmail: boolean;
         };
-        ActivityItem: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            ruleId: string;
-            /** @description post the rule was scoped to; null for all-posts rules */
+        StatsTotals: {
+            /** @description comments seen on posts with an active automation */
+            comments: number;
+            /** @description comments that matched a keyword (eligible for a DM) */
+            matched: number;
+            /** @description DMs successfully delivered */
+            sent: number;
+            failed: number;
+        };
+        PostStats: {
+            /** @description null = the all-posts automation bucket */
             mediaId: string | null;
-            commentId: string;
-            commenterId: string;
-            /** @description Optional. Only populate if we decide to keep the username from the webhook payload (requires a privacy-policy line); UI falls back to "someone" when null. */
-            commenterUsername: string | null;
-            /** @description null when the rule replies to any comment */
-            matchedKeyword: string | null;
-            /** @description the DM text that was sent */
-            message: string;
-            link: string | null;
+            /** @description keywords of the rules feeding this row (empty = any comment) */
+            keywords: string[];
+            comments: number;
+            matched: number;
+            sent: number;
+            lastEventAt: string | null;
+        };
+        Stats: {
             /** @enum {string} */
-            status: "queued" | "sent" | "failed";
-            /** Format: date-time */
-            createdAt: string;
-            sentAt: string | null;
+            window: "today" | "7d" | "30d" | "all";
+            totals: components["schemas"]["StatsTotals"];
+            /** @description same-length window immediately before; null for window=all */
+            previousTotals: components["schemas"]["StatsTotals"] | null;
+            perPost: components["schemas"]["PostStats"][];
         };
     };
     responses: never;
@@ -584,10 +591,10 @@ export interface operations {
             };
         };
     };
-    listActivity: {
+    getStats: {
         parameters: {
             query?: {
-                limit?: number;
+                window?: "today" | "7d" | "30d" | "all";
             };
             header?: never;
             path?: never;
@@ -595,15 +602,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Activity list */
+            /** @description Stats */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items: components["schemas"]["ActivityItem"][];
-                    };
+                    "application/json": components["schemas"]["Stats"];
                 };
             };
             /** @description Not authenticated */

@@ -218,36 +218,32 @@ paths:
         "404":
           description: Not found
 
-  /activity:
+  /stats:
     get:
-      operationId: listActivity
-      summary: Recent automation activity (comment matched → DM queued/sent)
+      operationId: getStats
+      summary: Reach stats — aggregate automation funnel per window and per post
       description: |
-        Newest-first feed of automation events for the connected account,
-        sourced from the dm_outbox: which comment matched which rule, the DM
-        we sent (or are sending), and its delivery status. Powers the
-        dashboard Activity card — the in-app proof of the messages
-        permission for Meta App Review.
+        Aggregate counters for the connected account, for a time window:
+        comments seen on automated posts -> comments that matched a keyword
+        (eligible) -> DMs delivered. previousTotals covers the equally long
+        window immediately before (null for window=all) so the UI can show
+        deltas. perPost groups by media: mediaId=null bucket collects
+        all-posts rules. Designed to gain a "followed" stage when
+        follow-gating ships.
       parameters:
-        - name: limit
+        - name: window
           in: query
           schema:
-            type: integer
-            default: 50
-            maximum: 200
+            type: string
+            enum: [today, 7d, 30d, all]
+            default: 7d
       responses:
         "200":
-          description: Activity list
+          description: Stats
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/ActivityItem"
-                required: [items]
+                $ref: "#/components/schemas/Stats"
         "401":
           description: Not authenticated
           content:
@@ -377,54 +373,63 @@ components:
           default: false
       required: [mediaId, keywords, responseMessage]
 
-    ActivityItem:
+    StatsTotals:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        ruleId:
-          type: string
-          format: uuid
+        comments:
+          type: integer
+          description: comments seen on posts with an active automation
+        matched:
+          type: integer
+          description: comments that matched a keyword (eligible for a DM)
+        sent:
+          type: integer
+          description: DMs successfully delivered
+        failed:
+          type: integer
+      required: [comments, matched, sent, failed]
+
+    PostStats:
+      type: object
+      properties:
         mediaId:
           oneOf:
             - type: string
             - type: "null"
-          description: post the rule was scoped to; null for all-posts rules
-        commentId:
-          type: string
-        commenterId:
-          type: string
-        commenterUsername:
-          oneOf:
-            - type: string
-            - type: "null"
-          description: >
-            Optional. Only populate if we decide to keep the username from the
-            webhook payload (requires a privacy-policy line); UI falls back to
-            "someone" when null.
-        matchedKeyword:
-          oneOf:
-            - type: string
-            - type: "null"
-          description: null when the rule replies to any comment
-        message:
-          type: string
-          description: the DM text that was sent
-        link:
-          oneOf:
-            - type: string
-            - type: "null"
-        status:
-          type: string
-          enum: [queued, sent, failed]
-        createdAt:
-          type: string
-          format: date-time
-        sentAt:
+          description: null = the all-posts automation bucket
+        keywords:
+          type: array
+          items:
+            type: string
+          description: keywords of the rules feeding this row (empty = any comment)
+        comments:
+          type: integer
+        matched:
+          type: integer
+        sent:
+          type: integer
+        lastEventAt:
           oneOf:
             - type: string
               format: date-time
             - type: "null"
-      required:
-        [id, ruleId, mediaId, commentId, commenterId, commenterUsername, matchedKeyword, message, link, status, createdAt, sentAt]
+      required: [mediaId, keywords, comments, matched, sent, lastEventAt]
+
+    Stats:
+      type: object
+      properties:
+        window:
+          type: string
+          enum: [today, 7d, 30d, all]
+        totals:
+          $ref: "#/components/schemas/StatsTotals"
+        previousTotals:
+          oneOf:
+            - $ref: "#/components/schemas/StatsTotals"
+            - type: "null"
+          description: same-length window immediately before; null for window=all
+        perPost:
+          type: array
+          items:
+            $ref: "#/components/schemas/PostStats"
+      required: [window, totals, previousTotals, perPost]

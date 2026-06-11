@@ -2,7 +2,8 @@ import { http, HttpResponse } from "msw";
 import type { Session } from "../api/client";
 import type { components } from "../api/schema";
 
-type ActivityItem = components["schemas"]["ActivityItem"];
+type Stats = components["schemas"]["Stats"];
+type Window = Stats["window"];
 
 const baseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
@@ -40,33 +41,58 @@ export const handlers = [
 
   http.delete(`${baseUrl}/me`, () => new HttpResponse(null, { status: 204 })),
 
-  http.get(`${baseUrl}/activity`, () => {
-    const now = Date.now();
-    const item = (
-      overrides: Partial<ActivityItem> & Pick<ActivityItem, "id" | "status">,
-      minutesAgo: number,
-    ): ActivityItem => ({
-      ruleId: "00000000-0000-0000-0000-00000000000a",
-      mediaId: "media-1",
-      commentId: `comment-${overrides.id}`,
-      commenterId: `ig-user-${overrides.id}`,
-      commenterUsername: null,
-      matchedKeyword: "LINK",
-      message: "Here's the guide you asked for 🎁",
-      link: "https://example.com/guide",
-      createdAt: new Date(now - minutesAgo * 60_000).toISOString(),
-      sentAt:
-        overrides.status === "sent" ? new Date(now - minutesAgo * 60_000 + 4_000).toISOString() : null,
-      ...overrides,
-    });
-    return HttpResponse.json({
-      items: [
-        item({ id: "00000000-0000-0000-0000-0000000000a1", status: "queued", commenterUsername: "priya.creates" }, 0),
-        item({ id: "00000000-0000-0000-0000-0000000000a2", status: "sent", commenterUsername: "arjun.fit" }, 2),
-        item({ id: "00000000-0000-0000-0000-0000000000a3", status: "sent" }, 14),
-        item({ id: "00000000-0000-0000-0000-0000000000a4", status: "failed", commenterUsername: "meme.lord", matchedKeyword: null }, 47),
-        item({ id: "00000000-0000-0000-0000-0000000000a5", status: "sent", commenterUsername: "kavya.codes" }, 180),
+  http.get(`${baseUrl}/stats`, ({ request }) => {
+    const window = (new URL(request.url).searchParams.get("window") ?? "7d") as Window;
+    // scale demo numbers by window so switching feels real
+    const scale = { today: 1, "7d": 7, "30d": 26, all: 60 }[window];
+    const stats: Stats = {
+      window,
+      totals: {
+        comments: 38 * scale,
+        matched: 31 * scale,
+        sent: 30 * scale,
+        failed: scale,
+      },
+      previousTotals:
+        window === "all"
+          ? null
+          : { comments: 29 * scale, matched: 22 * scale, sent: 21 * scale, failed: scale },
+      perPost: [
+        {
+          mediaId: "media-1",
+          keywords: ["LINK"],
+          comments: 26 * scale,
+          matched: 22 * scale,
+          sent: 21 * scale,
+          lastEventAt: new Date(Date.now() - 4 * 60_000).toISOString(),
+        },
+        {
+          mediaId: "media-2",
+          keywords: ["GUIDE", "EBOOK"],
+          comments: 9 * scale,
+          matched: 7 * scale,
+          sent: 7 * scale,
+          lastEventAt: new Date(Date.now() - 3 * 3_600_000).toISOString(),
+        },
+        {
+          mediaId: null,
+          keywords: [],
+          comments: 3 * scale,
+          matched: 2 * scale,
+          sent: 2 * scale,
+          lastEventAt: new Date(Date.now() - 26 * 3_600_000).toISOString(),
+        },
       ],
-    });
+    };
+    return HttpResponse.json(stats);
   }),
+
+  http.get(`${baseUrl}/media`, () =>
+    HttpResponse.json({
+      items: [
+        { id: "media-1", caption: "5 hooks that doubled my reach", mediaType: "REEL" },
+        { id: "media-2", caption: "My exact content system (free guide)", mediaType: "IMAGE" },
+      ],
+    }),
+  ),
 ];
