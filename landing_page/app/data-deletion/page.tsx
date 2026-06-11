@@ -19,7 +19,8 @@ export default function DataDeletion() {
           <li>Log in to your Loop dashboard.</li>
           <li>Disconnect your Instagram account, or delete your Loop account entirely.</li>
           <li>
-            Your stored Instagram data — access tokens, media metadata, comment history, message
+            Your stored Instagram data — access tokens, the post IDs your rules target,
+            matched-comment records, sent-DM
             history, and automation rules — is deleted from our systems.
           </li>
         </ol>
@@ -51,11 +52,16 @@ export default function DataDeletion() {
       <Section title="What gets deleted">
         <ul className="list-disc space-y-2 pl-6">
           <li>Instagram access tokens and account identifiers</li>
-          <li>Cached media lists and post metadata</li>
-          <li>Comment events and commenter identifiers we received via webhooks</li>
-          <li>DM content and delivery history</li>
+          <li>The post IDs your automation rules target</li>
+          <li>Matched-comment records (comment IDs and commenter user IDs)</li>
+          <li>The DMs we sent for you (content and delivery status)</li>
           <li>Your automation rules and account profile</li>
         </ul>
+        <p>
+          Note: we never store your post content, captions, or images (your post list is fetched
+          live from Instagram each time and shown in your browser only), and we never store the
+          text of incoming comments — so there is nothing of that kind to delete.
+        </p>
         <p>
           The only exception: minimal billing records we are legally required to keep for tax
           purposes, which contain no Instagram data.

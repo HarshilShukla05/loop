@@ -44,7 +44,7 @@ export function DangerZone() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="max-w-md text-sm text-muted-foreground">
             Disconnect your Instagram account and permanently delete everything Loop stores about
-            you — tokens, posts, comments, messages, and rules.
+            you — access tokens, matched-comment records, sent DMs, and your rules.
           </p>
           <Button variant="outline" onClick={() => setConfirming(true)}>
             <Trash2 className="size-4 text-destructive" />
@@ -57,8 +57,9 @@ export function DangerZone() {
             <DialogContent className="max-w-md">
               <DialogTitle>Delete your account?</DialogTitle>
               <DialogDescription>
-                This permanently deletes your Instagram connection and access tokens, cached posts,
-                comment history, DM history, and all automation rules. It cannot be undone.
+                This permanently deletes your Instagram connection and access tokens,
+                matched-comment records, sent-DM history, and all automation rules. It cannot be
+                undone.
               </DialogDescription>
               {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
               <DialogFooter>

@@ -27,20 +27,25 @@ export default function Privacy() {
         <ul className="list-disc space-y-2 pl-6">
           <li>
             <strong>Account basics</strong> — your Instagram account ID and username, and the
-            access token Meta issues so we can act on your behalf.
+            access token Meta issues so we can act on your behalf. The token is stored encrypted.
           </li>
           <li>
-            <strong>Your media</strong> — the list of your posts and reels (IDs, captions,
-            thumbnails) so you can choose which post an automation applies to.
+            <strong>Your posts (viewed, not stored)</strong> — we fetch your list of posts and
+            reels live from Meta to show you a post picker. We display it and do not keep it. If
+            you point an automation at a specific post, we store only that post&apos;s ID — never
+            its caption, image, or content.
           </li>
           <li>
-            <strong>Comments on your posts</strong> — the comment text, comment ID, and the
-            commenter&apos;s ID/username, delivered to us by Meta&apos;s webhooks, so we can match
-            them against your keywords.
+            <strong>Matched comments</strong> — when a comment on your post matches one of your
+            keywords, we store that comment&apos;s ID and the commenter&apos;s Instagram user ID,
+            so we can send your reply and make sure the same comment is never DM&apos;d twice. The
+            comment text itself is checked in memory and immediately discarded; comments that
+            don&apos;t match a rule are not kept at all.
           </li>
           <li>
-            <strong>Messages we send</strong> — the content and delivery status of the DMs your
-            automations send.
+            <strong>Messages we send</strong> — the DM content you configured and its delivery
+            status. We only send messages on your behalf; we never read your inbox or anyone&apos;s
+            incoming messages.
           </li>
         </ul>
         <p>Directly from you, we collect:</p>
@@ -55,6 +60,28 @@ export default function Privacy() {
           <li>
             <strong>Technical logs</strong> — IP address, browser type, and timestamps, kept
             briefly for security and debugging.
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="The permissions we ask Instagram for">
+        <p>
+          When you connect, Instagram&apos;s consent screen shows exactly what you are granting.
+          Loop requests three permissions, used for these purposes and nothing else:
+        </p>
+        <ul className="list-disc space-y-2 pl-6">
+          <li>
+            <strong>instagram_business_basic</strong> — read your account&apos;s basic info (ID,
+            username) and your list of posts/reels, so you can pick which post an automation
+            applies to.
+          </li>
+          <li>
+            <strong>instagram_business_manage_comments</strong> — read comments on your posts so
+            we can match them against your keywords.
+          </li>
+          <li>
+            <strong>instagram_business_manage_messages</strong> — send your automated DM (a
+            private reply) to the person who commented.
           </li>
         </ul>
       </Section>
@@ -99,10 +126,11 @@ export default function Privacy() {
 
       <Section title="How long we keep it">
         <p>
-          Only as long as needed to run your automations. Comment events are processed and then
-          retained only as activity history for your dashboard. If you disconnect your Instagram
+          Only as long as needed to run your automations. Matched-comment records and sent-DM
+          history are retained as your activity history. If you disconnect your Instagram
           account or delete your Loop account, we promptly delete your Instagram data, including
-          stored tokens, media metadata, comment history, and message history. We may retain
+          stored tokens, the post IDs your rules target, matched-comment records, and the history
+          of DMs we sent. We may retain
           minimal billing records where tax law requires it.
         </p>
       </Section>
@@ -121,7 +149,8 @@ export default function Privacy() {
           </li>
           <li>
             <strong>Via Instagram</strong> — remove Loop from your Instagram account&apos;s
-            connected apps; Meta notifies us and we delete your data.
+            connected apps to revoke our access immediately; then use either option above to erase
+            stored data.
           </li>
         </ul>
         <p>

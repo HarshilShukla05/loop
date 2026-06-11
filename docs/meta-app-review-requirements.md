@@ -122,9 +122,12 @@ These live on the marketing site and their URLs go into App Dashboard → Settin
 Per Meta Platform Terms §3.d and §4, the policy must:
 - Be on an **active, publicly available, non-geoblocked HTTPS URL**, crawlable by
   Meta's bots (no login wall, no geo-restriction).
-- **Clearly explain what Platform Data we process** — for Loop: Instagram account
-  ID + username, media list/metadata, comments (text, commenter ID/username) on the
-  creator's posts, the DMs we send on the creator's behalf, access tokens.
+- **Clearly explain what Platform Data we process** — for Loop (ground truth as
+  of June 2026): Instagram account ID + username, encrypted access token, post
+  IDs that rules target (media content/captions are fetched live, never stored),
+  matched-comment records (comment ID + commenter user ID only — comment text is
+  matched in memory and discarded), and the DMs we send (content + delivery
+  status; we never read inbound messages).
 - Explain **how** we process it and **for what purposes** (operate the
   comment→DM automation the creator configures; nothing else).
 - State **how users may request deletion**, and that the deletion right is
@@ -153,7 +156,37 @@ subscription/billing (₹200/mo), cancellation, disclaimers/liability, terminati
 governing law. Indian payment gateways (Razorpay et al.) also require a published
 **refund/cancellation policy** (`/refunds`).
 
+## 5¾. Per-permission use-case text (draft — paste into the App Review form)
 
+Each must be unique (no copy-paste between permissions) and match the screencast.
+
+**instagram_business_basic**
+> Loop is a comment-to-DM automation tool for Instagram professional accounts.
+> After the creator logs in with Instagram, we use this permission to read their
+> account ID and username — shown in the dashboard so they can confirm which
+> account is connected — and to fetch their list of posts/reels so they can pick
+> which post an automation rule applies to. The post list is displayed in the
+> browser and not stored; we keep only the ID of a post the creator attaches a
+> rule to.
+
+**instagram_business_manage_comments**
+> Creators define keyword rules for their own posts (e.g. "comment LINK").
+> We subscribe to comment webhooks and use this permission to read comments on
+> the creator's posts and match them against the creator's keywords. Comment
+> text is evaluated in memory and discarded; for matched comments we retain
+> only the comment ID and commenter ID so each comment is answered at most
+> once. Comments are never used for anything except triggering the creator's
+> own configured reply.
+
+**instagram_business_manage_messages**
+> When a comment matches the creator's rule, we use this permission to send the
+> creator's pre-written DM (a private reply with their link) to the commenter —
+> a person who has just interacted with the creator's post, within Meta's
+> messaging window. We only send messages the creator authored; we do not read
+> the creator's inbox or any inbound messages. Delivery status is shown in the
+> creator's dashboard.
+
+## 6. Screencast requirements (drives the UI/UX redesign)
 
 Official technical/presentation rules:
 
