@@ -22,68 +22,82 @@ export default function Privacy() {
         </p>
       </Section>
 
-      <Section title="Data we collect and process">
-        <p>When you connect your Instagram professional account, we process via Meta&apos;s Instagram API:</p>
+      <Section title="What we store">
+        <p>When you connect your Instagram account and use Loop, we keep:</p>
         <ul className="list-disc space-y-2 pl-6">
           <li>
-            <strong>Account basics</strong> — your Instagram account ID and username, and the
-            access token Meta issues so we can act on your behalf. The token is stored encrypted.
+            <strong>Your account name</strong> — your Instagram username and account ID, so we
+            know which account is yours.
           </li>
           <li>
-            <strong>Your posts (viewed, not stored)</strong> — we fetch your list of posts and
-            reels live from Meta to show you a post picker. We display it and do not keep it. If
-            you point an automation at a specific post, we store only that post&apos;s ID — never
-            its caption, image, or content.
+            <strong>A secure access key</strong> — Instagram gives us a key to act on your behalf.
+            We store it encrypted. We never see or store your password.
           </li>
           <li>
-            <strong>Matched comments</strong> — when a comment on your post matches one of your
-            keywords, we store that comment&apos;s ID and the commenter&apos;s Instagram user ID,
-            so we can send your reply and make sure the same comment is never DM&apos;d twice. The
-            comment text itself is checked in memory and immediately discarded; comments that
-            don&apos;t match a rule are not kept at all.
+            <strong>Your automations</strong> — the keywords, reply messages, and links you set
+            up, and the ID of the post each one is attached to.
           </li>
           <li>
-            <strong>Messages we send</strong> — the DM content you configured and its delivery
-            status. We only send messages on your behalf; we never read your inbox or anyone&apos;s
-            incoming messages.
-          </li>
-        </ul>
-        <p>Directly from you, we collect:</p>
-        <ul className="list-disc space-y-2 pl-6">
-          <li>
-            <strong>Automation settings</strong> — keywords, reply messages, and links you configure.
+            <strong>A record of each reply</strong> — when a comment triggers your automation, we
+            note which comment it was and who commented, so the same person is never messaged
+            twice for the same comment. We also keep the DM we sent and whether it was delivered,
+            so you can see it worked.
           </li>
           <li>
-            <strong>Billing details</strong> — handled by our payment processor; we never see or
-            store your full card or UPI credentials.
-          </li>
-          <li>
-            <strong>Technical logs</strong> — IP address, browser type, and timestamps, kept
-            briefly for security and debugging.
+            <strong>The basics every service keeps</strong> — billing records (your card or UPI
+            details stay with our payment provider, not us) and short-lived technical logs that
+            help us keep Loop secure.
           </li>
         </ul>
       </Section>
 
-      <Section title="The permissions we ask Instagram for">
+      <Section title="What we never store">
+        <ul className="list-disc space-y-2 pl-6">
+          <li>
+            <strong>Your password</strong> — you log in on Instagram itself, never on Loop.
+          </li>
+          <li>
+            <strong>Your posts and photos</strong> — when you pick a post for an automation, your
+            post list is shown live from Instagram. We don&apos;t keep a copy of any caption,
+            image, or video.
+          </li>
+          <li>
+            <strong>What people write in comments</strong> — we check each comment for your
+            keyword and then let it go. The words themselves are never saved.
+          </li>
+          <li>
+            <strong>Anyone&apos;s private messages</strong> — Loop only sends the reply you wrote.
+            We cannot read your inbox or anyone else&apos;s messages.
+          </li>
+        </ul>
+        <p>And we never sell your data. To anyone. Ever.</p>
+      </Section>
+
+      <Section title="What you give us permission to do">
         <p>
-          When you connect, Instagram&apos;s consent screen shows exactly what you are granting.
-          Loop requests three permissions, used for these purposes and nothing else:
+          When you connect, Instagram shows you a consent screen asking you to approve three
+          things. Here is what each one means in plain words:
         </p>
         <ul className="list-disc space-y-2 pl-6">
           <li>
-            <strong>instagram_business_basic</strong> — read your account&apos;s basic info (ID,
-            username) and your list of posts/reels, so you can pick which post an automation
-            applies to.
+            <strong>See your basic account info and post list</strong> — so we can show which
+            account is connected and let you pick a post.{" "}
+            <span className="text-muted">(instagram_business_basic)</span>
           </li>
           <li>
-            <strong>instagram_business_manage_comments</strong> — read comments on your posts so
-            we can match them against your keywords.
+            <strong>Read comments on your posts</strong> — so we can spot your keyword the moment
+            someone comments it.{" "}
+            <span className="text-muted">(instagram_business_manage_comments)</span>
           </li>
           <li>
-            <strong>instagram_business_manage_messages</strong> — send your automated DM (a
-            private reply) to the person who commented.
+            <strong>Send DMs on your behalf</strong> — so your reply reaches the person who
+            commented. <span className="text-muted">(instagram_business_manage_messages)</span>
           </li>
         </ul>
+        <p>
+          That&apos;s the whole list. We can&apos;t post for you, change your profile, follow
+          anyone, or read your messages.
+        </p>
       </Section>
 
       <Section title="How and why we use it">
@@ -126,36 +140,37 @@ export default function Privacy() {
 
       <Section title="How long we keep it">
         <p>
-          Only as long as needed to run your automations. Matched-comment records and sent-DM
-          history are retained as your activity history. If you disconnect your Instagram
-          account or delete your Loop account, we promptly delete your Instagram data, including
-          stored tokens, the post IDs your rules target, matched-comment records, and the history
-          of DMs we sent. We may retain
-          minimal billing records where tax law requires it.
+          Only as long as you use Loop. Your reply history — which comments we answered and the
+          DMs we sent — stays so you can see what Loop did for you. If you disconnect your
+          Instagram account or delete your Loop account, all of it is deleted promptly: the access
+          key, your automations, and your reply history. We may keep minimal billing records where
+          tax law requires it.
         </p>
       </Section>
 
-      <Section title="Deleting your data">
-        <p>Every Loop user can have their data deleted, at any time, in any of these ways:</p>
+      <Section title="Deleting your data" id="data-deletion">
+        <p>You can have everything Loop stores about you deleted at any time, in any of these ways:</p>
         <ul className="list-disc space-y-2 pl-6">
           <li>
-            <strong>Self-service</strong> — disconnect your Instagram account or delete your Loop
-            account from the dashboard.
+            <strong>From your dashboard (instant)</strong> — open your Loop dashboard and choose
+            &quot;Delete account &amp; data&quot;. This disconnects your Instagram account and
+            erases your account details, automations, and reply history right away.
           </li>
           <li>
-            <strong>Email</strong> — send a deletion request to{" "}
-            <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>; we confirm completion within
-            30 days.
+            <strong>Email us</strong> — send a request to{" "}
+            <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> with your Instagram username,
+            and we&apos;ll delete everything and confirm within 30 days.
           </li>
           <li>
-            <strong>Via Instagram</strong> — remove Loop from your Instagram account&apos;s
-            connected apps to revoke our access immediately; then use either option above to erase
-            stored data.
+            <strong>From Instagram</strong> — go to Instagram&apos;s{" "}
+            <em>Settings → Apps and websites</em>, find Loop and remove it. That instantly revokes
+            our access; then use either option above to erase what we&apos;ve stored.
           </li>
         </ul>
         <p>
-          Full instructions live at <a href="/data-deletion">loop&apos;s data deletion page</a>.
-          You can also ask us to correct any data we hold about you.
+          You can also email us to access or correct any data we hold about you. Whichever way you
+          choose, the result is the same: your account, automations, and reply history are removed
+          from our systems (we keep nothing else — see &quot;What we never store&quot; above).
         </p>
       </Section>
 

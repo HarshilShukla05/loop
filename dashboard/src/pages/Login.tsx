@@ -10,7 +10,6 @@ const landingUrl = import.meta.env.VITE_LANDING_URL ?? "https://loop.so";
 const defaultLegal = {
   privacyUrl: `${landingUrl}/privacy`,
   termsUrl: `${landingUrl}/terms`,
-  dataDeletionUrl: `${landingUrl}/data-deletion`,
 };
 
 export function Login() {
@@ -23,7 +22,8 @@ export function Login() {
     api
       .GET("/config")
       .then(({ data, response }) => {
-        if (active && response.status === 200 && data) setLegal(data);
+        if (active && response.status === 200 && data)
+          setLegal({ privacyUrl: data.privacyUrl, termsUrl: data.termsUrl });
       })
       .catch(() => {
         // keep the build-time fallback links
@@ -72,9 +72,6 @@ export function Login() {
         </a>
         <a href={legal.termsUrl} className="transition-colors hover:text-foreground">
           Terms of service
-        </a>
-        <a href={legal.dataDeletionUrl} className="transition-colors hover:text-foreground">
-          Data deletion
         </a>
       </footer>
     </main>

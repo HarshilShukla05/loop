@@ -139,14 +139,17 @@ Per Meta Platform Terms §3.d and §4, the policy must:
 - Processing must actually match the policy — we may only process data
   "as clearly described in your privacy policy."
 
-### Data deletion (`/data-deletion`) — second required field in App Dashboard
+### Data deletion — second required field in App Dashboard
 Meta accepts either a **Data Deletion Callback URL** (receives a signed request
 when a user removes the app from their Instagram/Facebook settings; must delete
 the data and return `{url, confirmation_code}` JSON for status tracking) **or a
-human-readable Data Deletion Instructions URL**. The instructions page must give
-users a clear way to request deletion and a way to know the status/outcome of
-their request. Plan: ship the instructions URL now, add the callback endpoint to
-the Go server later (it's the better UX and fully automates compliance).
+human-readable Data Deletion Instructions URL**, which the instructions can live
+inside the privacy policy (this is how ManyChat does it — no standalone page).
+Decision: we folded deletion into the privacy policy's "Deleting your data"
+section (3 paths: dashboard self-service, email, remove-from-Instagram). So for
+the App Dashboard's **User Data Deletion** field, use the anchored privacy URL:
+`https://<domain>/privacy#data-deletion`. Add the signed callback endpoint to the
+Go server later (better UX, fully automates compliance) — optional, not required.
 
 ### Terms of Service (`/terms`) — not a Meta-required field, but expected
 Should cover: service description, account eligibility (IG professional accounts),
