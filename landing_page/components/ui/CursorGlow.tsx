@@ -22,11 +22,9 @@ export default function CursorGlow() {
   const mx = useMotionValue(-400);
   const my = useMotionValue(-400);
 
-  // The glow is heavy light — it lags and settles. The ring is alert.
+  // The glow is heavy light — it lags and settles.
   const glowX = useSpring(mx, { stiffness: 80, damping: 22, mass: 0.9 });
   const glowY = useSpring(my, { stiffness: 80, damping: 22, mass: 0.9 });
-  const ringX = useSpring(mx, { stiffness: 520, damping: 38, mass: 0.35 });
-  const ringY = useSpring(my, { stiffness: 520, damping: 38, mass: 0.35 });
 
   useEffect(() => {
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -85,19 +83,6 @@ export default function CursorGlow() {
         }}
       >
         <div className="h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(var(--coral)/0.08),transparent_72%)] dark:bg-[radial-gradient(closest-side,rgb(var(--coral)/0.13),transparent_72%)]" />
-      </motion.div>
-
-      {/* ring that wakes up over links and buttons */}
-      <motion.div
-        className="absolute left-0 top-0 will-change-transform"
-        style={{ x: ringX, y: ringY }}
-        animate={{
-          opacity: present && hovering ? 1 : 0,
-          scale: hovering ? (pressed ? 0.72 : 1) : 0.4,
-        }}
-        transition={{ type: "spring", stiffness: 380, damping: 26 }}
-      >
-        <div className="h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-coral/50" />
       </motion.div>
     </div>
   );
