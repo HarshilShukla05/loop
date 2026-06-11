@@ -28,6 +28,7 @@ type accounts interface {
 	AuthorizedByExternal(ctx context.Context, externalAccountID string) (domain.ConnectedAccount, error)
 	Connect(ctx context.Context, acc domain.ConnectedAccount) (store.Connection, error)
 	MarkSubscribed(ctx context.Context, connectionID uuid.UUID, fields []string) error
+	DeleteUser(ctx context.Context, userID uuid.UUID, externalAccountID string) error
 }
 
 // connector is the slice of the social connector this layer drives.
@@ -35,6 +36,7 @@ type connector interface {
 	AuthorizeURL(state string) string
 	ExchangeCode(ctx context.Context, code string) (domain.ConnectedAccount, error)
 	Subscribe(ctx context.Context, account domain.ConnectedAccount, fields []string) error
+	Unsubscribe(ctx context.Context, account domain.ConnectedAccount) error
 	Media(ctx context.Context, account domain.ConnectedAccount) ([]domain.Media, error)
 	Comments(ctx context.Context, account domain.ConnectedAccount, mediaID string) ([]domain.Comment, error)
 	SendDirectMessage(ctx context.Context, account domain.ConnectedAccount, commentID, text string) (string, error)
@@ -51,6 +53,7 @@ type ruleService interface {
 type ruleCache interface {
 	AddRule(externalAccountID string, mediaID *string, r rulecache.Rule)
 	RemoveRule(externalAccountID string, ruleID uuid.UUID)
+	RemoveAccount(externalAccountID string)
 	Match(e domain.EngagementEvent) (rulecache.Match, bool)
 }
 
@@ -91,6 +94,7 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("GET /auth/instagram", a.startInstagram)
 	mux.HandleFunc("GET /auth/instagram/callback", a.instagramCallback)
 	mux.HandleFunc("GET /me", a.me)
+	mux.HandleFunc("DELETE /me", a.deleteAccount)
 	mux.HandleFunc("POST /auth/logout", a.logout)
 	mux.HandleFunc("GET /media", a.media)
 	mux.HandleFunc("GET /rules", a.listRules)

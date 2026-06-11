@@ -34,6 +34,7 @@ func (f fakeAccounts) Authorized(context.Context, uuid.UUID) (domain.ConnectedAc
 func (f fakeAccounts) AuthorizedByExternal(context.Context, string) (domain.ConnectedAccount, error) {
 	return domain.ConnectedAccount{}, nil
 }
+func (f fakeAccounts) DeleteUser(context.Context, uuid.UUID, string) error { return nil }
 
 func requestWithSession(userID uuid.UUID) *http.Request {
 	req := httptest.NewRequest(http.MethodGet, "/me", nil)
@@ -64,6 +65,33 @@ func TestMeReturnsAccount(t *testing.T) {
 	}
 	if got.Connection == nil || got.Connection.Username != "creator.handle" {
 		t.Fatalf("connection = %+v", got.Connection)
+	}
+}
+
+func TestDeleteAccountUnauthorized(t *testing.T) {
+	a := New(nil, nil, fakeAccounts{}, nil, nil, "secret", "", "", false, false)
+	rec := httptest.NewRecorder()
+	a.deleteAccount(rec, httptest.NewRequest(http.MethodDelete, "/me", nil))
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("code = %d, want 401", rec.Code)
+	}
+}
+
+func TestDeleteAccountClearsSession(t *testing.T) {
+	userID := uuid.New()
+	// no connection (ErrNoRows) → skips Meta/cache, still deletes the user row
+	a := New(nil, nil, fakeAccounts{err: pgx.ErrNoRows}, nil, nil, "secret", "", "", false, false)
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodDelete, "/me", nil)
+	req.AddCookie(&http.Cookie{Name: cookieName, Value: session.Issue(userID, time.Hour, "secret")})
+	a.deleteAccount(rec, req)
+
+	if rec.Code != http.StatusNoContent {
+		t.Fatalf("code = %d, want 204", rec.Code)
+	}
+	cookies := rec.Result().Cookies()
+	if len(cookies) == 0 || cookies[0].Name != cookieName || cookies[0].MaxAge >= 0 {
+		t.Fatalf("expected cleared session cookie, got %+v", cookies)
 	}
 }
 

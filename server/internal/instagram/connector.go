@@ -143,6 +143,19 @@ func (c *Connector) Subscribe(ctx context.Context, account domain.ConnectedAccou
 	return c.postForm(ctx, endpoint, form, nil)
 }
 
+// Unsubscribe removes the app's webhook subscription for the account
+// (DELETE /<ig-id>/subscribed_apps). Best-effort during account deletion.
+func (c *Connector) Unsubscribe(ctx context.Context, account domain.ConnectedAccount) error {
+	log.Printf("instagram: unsubscribing account %s", account.ExternalID)
+	endpoint := fmt.Sprintf("%s/%s/%s/subscribed_apps?access_token=%s",
+		graphHost, c.graphVer, account.ExternalID, url.QueryEscape(account.AccessToken))
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, endpoint, nil)
+	if err != nil {
+		return err
+	}
+	return c.do(req, nil)
+}
+
 func (c *Connector) Media(ctx context.Context, account domain.ConnectedAccount) ([]domain.Media, error) {
 	log.Printf("instagram: fetching media for account %s", account.ExternalID)
 	endpoint := graphHost + "/me/media?" + url.Values{

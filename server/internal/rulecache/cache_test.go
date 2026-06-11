@@ -90,3 +90,17 @@ func TestNoMatchUnknownAccount(t *testing.T) {
 		t.Fatal("unknown account should not match")
 	}
 }
+
+func TestRemoveAccount(t *testing.T) {
+	c := newTestCache()
+	mid := "m1"
+	c.AddRule("acct", &mid, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "x"})
+	c.AddRule("acct", nil, Rule{ID: uuid.New(), Keywords: nil, Body: "y"})
+	c.RemoveAccount("acct")
+	if _, ok := c.Match(ev("acct", "m1", "link")); ok {
+		t.Fatal("every rule for the deleted account must be evicted")
+	}
+	if c.Count() != 0 {
+		t.Fatalf("count = %d, want 0", c.Count())
+	}
+}

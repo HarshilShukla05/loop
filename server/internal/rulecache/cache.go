@@ -110,6 +110,15 @@ func (c *Cache) RemoveRule(externalAccountID string, ruleID uuid.UUID) {
 	}
 }
 
+// RemoveAccount evicts every rule for an account — used when the account is
+// deleted, so its rules stop matching webhooks immediately rather than at the
+// next restart.
+func (c *Cache) RemoveAccount(externalAccountID string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	delete(c.byAccount, externalAccountID)
+}
+
 func (c *Cache) Match(e domain.EngagementEvent) (Match, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()

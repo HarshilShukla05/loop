@@ -9,6 +9,16 @@ import (
 	"context"
 )
 
+const deleteRateLimit = `-- name: DeleteRateLimit :exec
+DELETE FROM rate_limits WHERE external_account_id = $1
+`
+
+// DeleteRateLimit drops an account's bucket (no FK to cascade through).
+func (q *Queries) DeleteRateLimit(ctx context.Context, account string) error {
+	_, err := q.db.Exec(ctx, deleteRateLimit, account)
+	return err
+}
+
 const seedRateBucket = `-- name: SeedRateBucket :exec
 INSERT INTO rate_limits (external_account_id, tokens, updated_at)
 VALUES ($1, $2, now())

@@ -5,6 +5,10 @@ INSERT INTO rate_limits (external_account_id, tokens, updated_at)
 VALUES (@account, @capacity, now())
 ON CONFLICT (external_account_id) DO NOTHING;
 
+-- DeleteRateLimit drops an account's bucket (no FK to cascade through).
+-- name: DeleteRateLimit :exec
+DELETE FROM rate_limits WHERE external_account_id = @account;
+
 -- TryConsumeToken atomically refills then consumes one token, but only if at
 -- least one token is available after the refill (the WHERE guard). It returns
 -- the remaining tokens on success; zero rows (pgx.ErrNoRows) means denied. The

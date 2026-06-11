@@ -125,6 +125,22 @@ func (s *Service) AuthorizedByExternal(ctx context.Context, externalAccountID st
 	}, nil
 }
 
+// DeleteUser permanently removes the user and everything it owns. Connections,
+// rules, and dm_outbox rows cascade from the user row via ON DELETE CASCADE; the
+// per-account rate-limit bucket has no FK, so it's deleted explicitly. Both run
+// in one transaction so deletion is all-or-nothing.
+func (s *Service) DeleteUser(ctx context.Context, userID uuid.UUID, externalAccountID string) error {
+	return db.WithTx(ctx, s.pool, func(tx pgx.Tx) error {
+		q := s.q.WithTx(tx)
+		if externalAccountID != "" {
+			if err := q.DeleteRateLimit(ctx, externalAccountID); err != nil {
+				return err
+			}
+		}
+		return q.DeleteUser(ctx, userID)
+	})
+}
+
 // Authorized returns the user's account with its access token decrypted, ready
 // for Meta calls. The plaintext token never leaves this boundary in stored form.
 func (s *Service) Authorized(ctx context.Context, userID uuid.UUID) (domain.ConnectedAccount, error) {
