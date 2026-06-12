@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 type Stats = components["schemas"]["Stats"];
 type Window = Stats["window"];
 
+const REFRESH_MS = 30_000;
+
 const windows: { value: Window; label: string }[] = [
   { value: "today", label: "Today" },
   { value: "7d", label: "7 days" },
@@ -16,14 +18,25 @@ const windows: { value: Window; label: string }[] = [
   { value: "all", label: "All time" },
 ];
 
-function pct(part: number, whole: number): string | null {
-  if (whole <= 0) return null;
-  return `${Math.round((part / whole) * 100)}%`;
+function rate(sent: number, comments: number): number | null {
+  if (comments <= 0) return null;
+  return Math.round((sent / comments) * 100);
 }
 
 function delta(current: number, previous: number | undefined): number | null {
   if (previous === undefined || previous <= 0) return null;
   return Math.round(((current - previous) / previous) * 100);
+}
+
+function DeltaChip({ value, suffix = "%" }: { value: number | null; suffix?: string }) {
+  if (value === null || value === 0) return null;
+  return (
+    <Badge variant={value > 0 ? "success" : "warning"}>
+      {value > 0 ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}
+      {Math.abs(value)}
+      {suffix}
+    </Badge>
+  );
 }
 
 export function ReachStats() {
@@ -34,22 +47,27 @@ export function ReachStats() {
 
   useEffect(() => {
     let active = true;
-    api
-      .GET("/stats", { params: { query: { window: window_ } } })
-      .then(({ data, response }) => {
-        if (!active) return;
-        if (response.status === 200 && data) {
-          setStats(data);
-          setUnavailable(false);
-        } else if (response.status === 404 || response.status === 501) {
-          setUnavailable(true); // backend predates the endpoint
-        }
-      })
-      .catch(() => {
-        if (active && stats === null) setUnavailable(true);
-      });
+    const load = () => {
+      api
+        .GET("/stats", { params: { query: { window: window_ } } })
+        .then(({ data, response }) => {
+          if (!active) return;
+          if (response.status === 200 && data) {
+            setStats(data);
+            setUnavailable(false);
+          } else if (response.status === 404 || response.status === 501) {
+            setUnavailable(true); // backend predates the endpoint
+          }
+        })
+        .catch(() => {
+          if (active) setUnavailable((u) => u || stats === null);
+        });
+    };
+    load();
+    const timer = setInterval(load, REFRESH_MS);
     return () => {
       active = false;
+      clearInterval(timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [window_]);
@@ -67,36 +85,21 @@ export function ReachStats() {
       });
   }, []);
 
-  const tiles = useMemo(() => {
-    if (!stats) return null;
-    const { totals, previousTotals } = stats;
-    return [
-      {
-        label: "Comments caught",
-        value: totals.comments,
-        delta: delta(totals.comments, previousTotals?.comments),
-        caption: "on posts with an automation",
-      },
-      {
-        label: "Matched your keyword",
-        value: totals.matched,
-        delta: delta(totals.matched, previousTotals?.matched),
-        caption: pct(totals.matched, totals.comments)
-          ? `${pct(totals.matched, totals.comments)} of comments`
-          : "eligible for a DM",
-      },
-      {
-        label: "DMs delivered",
-        value: totals.sent,
-        delta: delta(totals.sent, previousTotals?.sent),
-        caption: pct(totals.sent, totals.matched)
-          ? `${pct(totals.sent, totals.matched)} delivery rate`
-          : "links landed in inboxes",
-      },
-    ];
+  const posts = useMemo(() => {
+    if (!stats) return [];
+    return [...stats.perPost].sort((a, b) => {
+      if (!a.lastEventAt) return 1;
+      if (!b.lastEventAt) return -1;
+      return new Date(b.lastEventAt).getTime() - new Date(a.lastEventAt).getTime();
+    });
   }, [stats]);
 
   if (unavailable) return null;
+
+  const totals = stats?.totals;
+  const prev = stats?.previousTotals;
+  const replyRate = totals ? rate(totals.sent, totals.comments) : null;
+  const prevReplyRate = prev ? rate(prev.sent, prev.comments) : null;
 
   return (
     <Card>
@@ -120,9 +123,9 @@ export function ReachStats() {
         </div>
       </CardHeader>
       <CardContent>
-        {stats === null ? (
+        {!totals ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
-        ) : stats.totals.comments === 0 && stats.perPost.length === 0 ? (
+        ) : totals.comments === 0 && posts.length === 0 ? (
           <div className="rounded-xl border border-dashed border-input px-6 py-10 text-center">
             <p className="font-display text-xl text-foreground">Your reach shows up here</p>
             <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
@@ -133,32 +136,37 @@ export function ReachStats() {
         ) : (
           <>
             <div className="grid gap-3 sm:grid-cols-3">
-              {tiles!.map((tile) => (
-                <div key={tile.label} className="rounded-xl border border-border bg-background p-4">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-display text-3xl text-foreground">
-                      {tile.value.toLocaleString()}
-                    </span>
-                    {tile.delta !== null && tile.delta !== 0 && (
-                      <Badge variant={tile.delta > 0 ? "success" : "warning"}>
-                        {tile.delta > 0 ? (
-                          <ArrowUpRight className="size-3" />
-                        ) : (
-                          <ArrowDownRight className="size-3" />
-                        )}
-                        {Math.abs(tile.delta)}%
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="mt-1 text-sm font-medium text-foreground">{tile.label}</p>
-                  <p className="text-xs text-muted-foreground">{tile.caption}</p>
-                </div>
-              ))}
+              <StatTile
+                value={totals.comments.toLocaleString()}
+                label="Comments caught"
+                caption="on posts with an automation"
+                chip={<DeltaChip value={delta(totals.comments, prev?.comments)} />}
+              />
+              <StatTile
+                value={totals.sent.toLocaleString()}
+                label="DMs delivered"
+                caption={totals.failed > 0 ? `${totals.failed} failed — we retry` : "links landed in inboxes"}
+                chip={<DeltaChip value={delta(totals.sent, prev?.sent)} />}
+                emphasis
+              />
+              <StatTile
+                value={replyRate === null ? "—" : `${replyRate}%`}
+                label="Reply rate"
+                caption="of comments got your DM"
+                chip={
+                  <DeltaChip
+                    value={
+                      replyRate !== null && prevReplyRate !== null ? replyRate - prevReplyRate : null
+                    }
+                    suffix="pt"
+                  />
+                }
+              />
             </div>
 
-            {stats.perPost.length > 0 && (
-              <ul className="mt-5 space-y-3">
-                {stats.perPost.map((post) => {
+            {posts.length > 0 && (
+              <ul className="mt-5 max-h-80 space-y-3 overflow-y-auto pr-1">
+                {posts.map((post) => {
                   const media = post.mediaId ? thumbs.get(post.mediaId) : undefined;
                   const thumb = media?.thumbnailUrl || media?.mediaUrl;
                   return (
@@ -167,11 +175,7 @@ export function ReachStats() {
                       className="flex items-center gap-4 rounded-xl border border-border p-3"
                     >
                       {thumb ? (
-                        <img
-                          src={thumb}
-                          alt=""
-                          className="size-12 shrink-0 rounded-lg object-cover"
-                        />
+                        <img src={thumb} alt="" className="size-12 shrink-0 rounded-lg object-cover" />
                       ) : (
                         <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-accent font-display text-lg text-accent-foreground">
                           {post.mediaId ? "P" : "∞"}
@@ -179,10 +183,8 @@ export function ReachStats() {
                       )}
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                          <span className="text-sm font-medium text-foreground">
-                            {post.mediaId
-                              ? (media?.caption?.slice(0, 40) ?? "Post")
-                              : "All posts"}
+                          <span className="truncate text-sm font-medium text-foreground">
+                            {post.mediaId ? (media?.caption?.slice(0, 48) ?? "Post") : "All posts"}
                           </span>
                           {post.keywords.length === 0 ? (
                             <span className="text-xs text-muted-foreground">any comment</span>
@@ -194,26 +196,18 @@ export function ReachStats() {
                             ))
                           )}
                         </div>
-                        {/* funnel: comments -> matched -> sent */}
+                        {/* share of caught comments that got the DM */}
                         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
                           <div
-                            className="h-full rounded-full bg-primary/30"
+                            className="h-full rounded-full bg-primary"
                             style={{
-                              width: `${post.comments > 0 ? Math.max(4, (post.matched / post.comments) * 100) : 0}%`,
+                              width: `${post.comments > 0 ? Math.max(3, (post.sent / post.comments) * 100) : 0}%`,
                             }}
-                          >
-                            <div
-                              className="h-full rounded-full bg-primary"
-                              style={{
-                                width: `${post.matched > 0 ? (post.sent / post.matched) * 100 : 0}%`,
-                              }}
-                            />
-                          </div>
+                          />
                         </div>
                       </div>
                       <div className="flex shrink-0 gap-4 text-right">
                         <Figure label="comments" value={post.comments} />
-                        <Figure label="matched" value={post.matched} />
                         <Figure label="DMs sent" value={post.sent} emphasis />
                       </div>
                     </li>
@@ -225,6 +219,33 @@ export function ReachStats() {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function StatTile({
+  value,
+  label,
+  caption,
+  chip,
+  emphasis,
+}: {
+  value: string;
+  label: string;
+  caption: string;
+  chip: React.ReactNode;
+  emphasis?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-background p-4">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className={cn("font-display text-3xl", emphasis ? "text-primary" : "text-foreground")}>
+          {value}
+        </span>
+        {chip}
+      </div>
+      <p className="mt-1 text-sm font-medium text-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{caption}</p>
+    </div>
   );
 }
 

@@ -18,6 +18,7 @@ enableMocking().then(() => {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/automations" element={<Dashboard />} />
         </Routes>
       </BrowserRouter>
     </StrictMode>,
