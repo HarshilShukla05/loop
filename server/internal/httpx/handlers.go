@@ -2,6 +2,7 @@ package httpx
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
@@ -57,6 +58,41 @@ func connView(c store.Connection) *connectionView {
 }
 
 func (a *API) logout(w http.ResponseWriter, r *http.Request) {
+	a.clearSession(w)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// deleteAccount permanently removes the user's account and all associated data
+// (the Meta data-deletion path). It best-effort unsubscribes from Meta, then
+// transactionally deletes the user row (connections/rules/dm_outbox cascade) and
+// the rate-limit bucket, evicts the in-memory rules, and clears the session.
+// 204 on success; a repeat call on a dead session is a clean 401.
+func (a *API) deleteAccount(w http.ResponseWriter, r *http.Request) {
+	userID, err := a.sessionUser(r)
+	if err != nil {
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+		return
+	}
+
+	externalID := ""
+	if conn, err := a.accounts.Account(r.Context(), userID); err == nil {
+		externalID = conn.ExternalAccountID
+		// Unsubscribe from Meta while we still hold a usable token; best-effort.
+		if account, aerr := a.accounts.Authorized(r.Context(), userID); aerr == nil {
+			if uerr := a.connector.Unsubscribe(r.Context(), account); uerr != nil {
+				log.Printf("delete account: unsubscribe failed (non-fatal): %v", uerr)
+			}
+		}
+	}
+
+	if err := a.accounts.DeleteUser(r.Context(), userID, externalID); err != nil {
+		log.Printf("delete account: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not delete account"})
+		return
+	}
+	if externalID != "" {
+		a.cache.RemoveAccount(externalID)
+	}
 	a.clearSession(w)
 	w.WriteHeader(http.StatusNoContent)
 }

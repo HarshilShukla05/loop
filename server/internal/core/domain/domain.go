@@ -31,6 +31,13 @@ type OutboundMessage struct {
 	Body         string
 }
 
+// Comment is a comment on a media, read via the API (for the dev replay path).
+type Comment struct {
+	ID        string
+	Text      string
+	Timestamp string
+}
+
 // Media is a post/reel on a connected account (used by the rule picker).
 type Media struct {
 	ID           string

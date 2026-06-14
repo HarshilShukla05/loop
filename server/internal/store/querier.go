@@ -18,15 +18,28 @@ type Querier interface {
 	CreateRule(ctx context.Context, arg CreateRuleParams) (Rule, error)
 	CreateUser(ctx context.Context) (User, error)
 	DeferJob(ctx context.Context, arg DeferJobParams) error
+	// DeleteRateLimit drops an account's bucket (no FK to cascade through).
+	DeleteRateLimit(ctx context.Context, account string) error
 	DeleteRule(ctx context.Context, arg DeleteRuleParams) (int64, error)
+	// DeleteUser removes the user; connections, rules, and dm_outbox rows cascade
+	// via their ON DELETE CASCADE foreign keys.
+	DeleteUser(ctx context.Context, id uuid.UUID) error
 	FailJob(ctx context.Context, arg FailJobParams) error
 	InsertDMJob(ctx context.Context, arg InsertDMJobParams) (int64, error)
 	MarkSent(ctx context.Context, id uuid.UUID) error
 	RetryJob(ctx context.Context, arg RetryJobParams) error
 	RulesByConnection(ctx context.Context, connectionID uuid.UUID) ([]Rule, error)
 	RulesForCache(ctx context.Context) ([]RulesForCacheRow, error)
+	// SeedRateBucket ensures a full bucket exists for the account. ON CONFLICT DO
+	// NOTHING means no write (and no dead tuple) after the first sighting.
+	SeedRateBucket(ctx context.Context, arg SeedRateBucketParams) error
 	SetSubscription(ctx context.Context, arg SetSubscriptionParams) error
 	TouchUserLogin(ctx context.Context, id uuid.UUID) error
+	// TryConsumeToken atomically refills then consumes one token, but only if at
+	// least one token is available after the refill (the WHERE guard). It returns
+	// the remaining tokens on success; zero rows (pgx.ErrNoRows) means denied. The
+	// single UPDATE takes the row lock, so concurrent callers can never double-spend.
+	TryConsumeToken(ctx context.Context, arg TryConsumeTokenParams) (float64, error)
 	UpdateConnectionTokens(ctx context.Context, arg UpdateConnectionTokensParams) (Connection, error)
 }
 

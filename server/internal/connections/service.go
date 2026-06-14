@@ -101,6 +101,46 @@ func (s *Service) Account(ctx context.Context, userID uuid.UUID) (store.Connecti
 	return s.q.ConnectionByUser(ctx, userID)
 }
 
+// AuthorizedByExternal returns an account (token decrypted) by its Instagram id.
+// Used by dev tooling that runs outside a user session.
+func (s *Service) AuthorizedByExternal(ctx context.Context, externalAccountID string) (domain.ConnectedAccount, error) {
+	conn, err := s.q.ConnectionByExternal(ctx, store.ConnectionByExternalParams{
+		Platform:          domain.PlatformInstagram,
+		ExternalAccountID: externalAccountID,
+	})
+	if err != nil {
+		return domain.ConnectedAccount{}, err
+	}
+	token, err := s.cipher.Decrypt(conn.AccessTokenEnc)
+	if err != nil {
+		return domain.ConnectedAccount{}, err
+	}
+	return domain.ConnectedAccount{
+		Platform:       conn.Platform,
+		ExternalID:     conn.ExternalAccountID,
+		Username:       conn.Username,
+		AccessToken:    token,
+		TokenExpiresAt: conn.TokenExpiresAt,
+		Scopes:         conn.Scopes,
+	}, nil
+}
+
+// DeleteUser permanently removes the user and everything it owns. Connections,
+// rules, and dm_outbox rows cascade from the user row via ON DELETE CASCADE; the
+// per-account rate-limit bucket has no FK, so it's deleted explicitly. Both run
+// in one transaction so deletion is all-or-nothing.
+func (s *Service) DeleteUser(ctx context.Context, userID uuid.UUID, externalAccountID string) error {
+	return db.WithTx(ctx, s.pool, func(tx pgx.Tx) error {
+		q := s.q.WithTx(tx)
+		if externalAccountID != "" {
+			if err := q.DeleteRateLimit(ctx, externalAccountID); err != nil {
+				return err
+			}
+		}
+		return q.DeleteUser(ctx, userID)
+	})
+}
+
 // Authorized returns the user's account with its access token decrypted, ready
 // for Meta calls. The plaintext token never leaves this boundary in stored form.
 func (s *Service) Authorized(ctx context.Context, userID uuid.UUID) (domain.ConnectedAccount, error) {

@@ -35,6 +35,15 @@ func TestMatchKeywordCaseInsensitive(t *testing.T) {
 	}
 }
 
+func TestMatchUppercaseKeyword(t *testing.T) {
+	c := newTestCache()
+	// keyword typed in uppercase must still match lowercase comment text
+	c.AddRule("acct", nil, Rule{ID: uuid.New(), Keywords: []string{"LINK"}, Body: "x"})
+	if _, ok := c.Match(ev("acct", "m1", "drop the link")); !ok {
+		t.Fatal("uppercase keyword should match lowercased comment text")
+	}
+}
+
 func TestMediaSpecificBeatsAllPosts(t *testing.T) {
 	c := newTestCache()
 	mid := "m1"
@@ -79,5 +88,19 @@ func TestNoMatchUnknownAccount(t *testing.T) {
 	c := newTestCache()
 	if _, ok := c.Match(ev("nope", "m1", "link")); ok {
 		t.Fatal("unknown account should not match")
+	}
+}
+
+func TestRemoveAccount(t *testing.T) {
+	c := newTestCache()
+	mid := "m1"
+	c.AddRule("acct", &mid, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "x"})
+	c.AddRule("acct", nil, Rule{ID: uuid.New(), Keywords: nil, Body: "y"})
+	c.RemoveAccount("acct")
+	if _, ok := c.Match(ev("acct", "m1", "link")); ok {
+		t.Fatal("every rule for the deleted account must be evicted")
+	}
+	if c.Count() != 0 {
+		t.Fatalf("count = %d, want 0", c.Count())
 	}
 }

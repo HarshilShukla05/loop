@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 type Config struct {
@@ -20,6 +21,9 @@ type Config struct {
 	SessionSecret      string
 	SecureCookies      bool
 	DevAuth            bool
+	SendDryRun         bool // log instead of calling Meta (no real DMs)
+	WorkerCount        int  // outbox send-worker concurrency ceiling
+	RateLimitPerHour   int  // per-account send cap (Meta: 750/hr posts+reels)
 }
 
 func Load() (Config, error) {
@@ -38,6 +42,9 @@ func Load() (Config, error) {
 		SessionSecret:      os.Getenv("SESSION_SECRET"),
 		SecureCookies:      os.Getenv("COOKIE_SECURE") == "true",
 		DevAuth:            os.Getenv("DEV_AUTH") == "true",
+		SendDryRun:         os.Getenv("SEND_DRY_RUN") == "true",
+		WorkerCount:        fallbackInt("WORKER_COUNT", 10),
+		RateLimitPerHour:   fallbackInt("RATE_LIMIT_PER_HOUR", 750),
 	}
 	if c.DatabaseURL == "" {
 		return c, fmt.Errorf("DATABASE_URL is required")
@@ -54,6 +61,15 @@ func Load() (Config, error) {
 func fallback(key, value string) string {
 	if v := os.Getenv(key); v != "" {
 		return v
+	}
+	return value
+}
+
+func fallbackInt(key string, value int) int {
+	if v := os.Getenv(key); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			return n
+		}
 	}
 	return value
 }

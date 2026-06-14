@@ -29,6 +29,17 @@ func (q *Queries) CreateUser(ctx context.Context) (User, error) {
 	return i, err
 }
 
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users WHERE id = $1
+`
+
+// DeleteUser removes the user; connections, rules, and dm_outbox rows cascade
+// via their ON DELETE CASCADE foreign keys.
+func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteUser, id)
+	return err
+}
+
 const touchUserLogin = `-- name: TouchUserLogin :exec
 UPDATE users
 SET last_login_at = now(),

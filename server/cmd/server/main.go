@@ -15,6 +15,8 @@ import (
 	"loop/internal/db"
 	"loop/internal/httpx"
 	"loop/internal/instagram"
+	"loop/internal/outbox"
+	"loop/internal/ratelimit"
 	"loop/internal/rulecache"
 	"loop/internal/rules"
 	"loop/internal/store"
@@ -50,8 +52,18 @@ func main() {
 	log.Printf("rule cache loaded: %d rules", cache.Count())
 
 	igConnector := instagram.New(cfg.MetaAppID, cfg.MetaAppSecret, cfg.MetaRedirectURI, cfg.GraphAPIVersion)
-	ingest := webhook.NewHandler(cfg.WebhookVerifyToken, igConnector, cache, queries)
+	// Enforce the X-Hub-Signature-256 except in local dev (DEV_AUTH=true), where
+	// unsigned manual test posts are convenient.
+	ingest := webhook.NewHandler(cfg.WebhookVerifyToken, igConnector, cache, queries, !cfg.DevAuth)
 	api := httpx.New(ingest, igConnector, conns, ruleSvc, cache, cfg.SessionSecret, cfg.DashboardURL, cfg.MarketingURL, cfg.SecureCookies, cfg.DevAuth)
+
+	limiter := ratelimit.New(pool, cfg.RateLimitPerHour)
+	workers := outbox.NewPool(pool, conns, igConnector, limiter, outbox.Config{
+		Workers: cfg.WorkerCount,
+		DryRun:  cfg.SendDryRun,
+	})
+	workerCtx, cancelWorkers := context.WithCancel(context.Background())
+	workers.Start(workerCtx)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
@@ -71,9 +83,12 @@ func main() {
 	<-stop
 
 	log.Println("shutting down")
+	cancelWorkers() // stop claiming new jobs; in-flight sends finish or roll back
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Printf("shutdown: %v", err)
 	}
+	workers.Wait()
+	log.Println("outbox drained")
 }
