@@ -26,7 +26,7 @@ services:
       MARKETING_URL: "https://lcms.lkms.inframan.cloud/loop-landing"
       META_REDIRECT_URI: "https://lcms.lkms.inframan.cloud/loop-api/auth/instagram/callback"
       GRAPH_API_VERSION: "v23.0"
-      META_APP_ID: "3897649677210395"
+      META_APP_ID: "2425718201265164"
       COOKIE_SECURE: "true"
       DEV_AUTH: "false"
       SEND_DRY_RUN: "false"
