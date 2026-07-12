@@ -22,8 +22,8 @@ services:
       META_WEBHOOK_VERIFY_TOKEN: loop-meta-webhook-verify-token
       META_APP_SECRET: loop-meta-app-secret
     env:
-      DASHBOARD_URL: "https://lcms.lkms.inframan.cloud"
-      MARKETING_URL: "https://lcms.lkms.inframan.cloud"
+      DASHBOARD_URL: "https://lcms.lkms.inframan.cloud/loop"
+      MARKETING_URL: "https://lcms.lkms.inframan.cloud/loop-landing"
       META_REDIRECT_URI: "https://lcms.lkms.inframan.cloud/loop-api/auth/instagram/callback"
       GRAPH_API_VERSION: "v23.0"
       META_APP_ID: "3897649677210395"
@@ -55,7 +55,7 @@ services:
       min_replicas: 1
       max_replicas: 3
       target: 100
-  landing_page:
+  landing-page:
     type: web
     path: landing_page
     port: 80

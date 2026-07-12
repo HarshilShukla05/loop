@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM node:24-alpine AS builder
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 COPY . .
 # Baked in at build time: same-origin API path + base path this SPA is served

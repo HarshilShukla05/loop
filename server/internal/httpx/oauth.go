@@ -5,9 +5,16 @@ import (
 	"encoding/base64"
 	"log"
 	"net/http"
+	"strings"
 )
 
 const stateCookie = "loop_oauth_state"
+
+// dashboardPath resolves a dashboard route against DASHBOARD_URL so redirects
+// land on the SPA wherever it is hosted (same origin, subpath, or subdomain).
+func (a *API) dashboardPath(path string) string {
+	return strings.TrimRight(a.dashboardURL, "/") + path
+}
 
 func (a *API) startInstagram(w http.ResponseWriter, r *http.Request) {
 	state := randomState()
@@ -26,7 +33,7 @@ func (a *API) startInstagram(w http.ResponseWriter, r *http.Request) {
 func (a *API) instagramCallback(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	if reason := q.Get("error"); reason != "" {
-		http.Redirect(w, r, "/?error="+reason, http.StatusFound)
+		http.Redirect(w, r, a.dashboardPath("/?error="+reason), http.StatusFound)
 		return
 	}
 
@@ -63,7 +70,7 @@ func (a *API) instagramCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	a.setSession(w, conn.UserID)
-	http.Redirect(w, r, "/dashboard", http.StatusFound)
+	http.Redirect(w, r, a.dashboardPath("/dashboard"), http.StatusFound)
 }
 
 func randomState() string {

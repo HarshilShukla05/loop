@@ -116,5 +116,5 @@ func (a *API) devLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	a.setSession(w, conn.UserID)
-	http.Redirect(w, r, "/dashboard", http.StatusFound)
+	http.Redirect(w, r, a.dashboardPath("/dashboard"), http.StatusFound)
 }
