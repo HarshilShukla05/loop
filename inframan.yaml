@@ -38,7 +38,7 @@ services:
       liveness_probe: { path: /healthz, period_seconds: 10, failure_threshold: 3 }
     scaling:
       type: concurrency
-      min_replicas: 1
+      min_replicas: 0
       max_replicas: 3
       target: 50
   dashboard:
@@ -52,7 +52,7 @@ services:
       dockerfile: ./Dockerfile
     scaling:
       type: concurrency
-      min_replicas: 1
+      min_replicas: 0
       max_replicas: 3
       target: 100
   landing-page:
