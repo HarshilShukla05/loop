@@ -58,6 +58,7 @@ func (s *Service) Connect(ctx context.Context, acc domain.ConnectedAccount) (sto
 				TokenExpiresAt: acc.TokenExpiresAt,
 				Scopes:         acc.Scopes,
 				Status:         statusConnected,
+				IgID:           acc.IgID,
 			})
 			return err
 
@@ -70,6 +71,7 @@ func (s *Service) Connect(ctx context.Context, acc domain.ConnectedAccount) (sto
 				UserID:             user.ID,
 				Platform:           acc.Platform,
 				ExternalAccountID:  acc.ExternalID,
+				IgID:               acc.IgID,
 				Username:           acc.Username,
 				AccessTokenEnc:     encrypted,
 				TokenExpiresAt:     acc.TokenExpiresAt,

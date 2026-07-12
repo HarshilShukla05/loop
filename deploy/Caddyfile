@@ -1,0 +1,22 @@
+# Loop — single-origin reverse proxy + SPA host.
+# Provider-agnostic: runs identically on any Ubuntu VM (GCP, DigitalOcean, …).
+# Caddy auto-provisions a Let's Encrypt cert for this name (needs DNS-only /
+# grey-cloud at Cloudflare, ports 80+443 open). API paths go to the Go server on
+# localhost:8080; everything else serves the built dashboard SPA with index.html
+# fallback so client-side routes (/dashboard, …) resolve.
+app.loop.lmk.co.in {
+	encode gzip
+
+	# Backend API surface (must match the routes registered in httpx/router.go).
+	@api path /auth/* /me /media /rules /rules/* /webhooks/* /config /healthz
+	handle @api {
+		reverse_proxy localhost:8080
+	}
+
+	# Static SPA + history fallback.
+	handle {
+		root * /var/www/loop-dashboard
+		try_files {path} /index.html
+		file_server
+	}
+}

@@ -25,6 +25,7 @@ type Connection struct {
 	LastRefreshedAt    *time.Time `json:"last_refreshed_at"`
 	CreatedAt          time.Time  `json:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at"`
+	IgID               string     `json:"ig_id"`
 }
 
 type DmOutbox struct {

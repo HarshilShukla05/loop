@@ -151,6 +151,7 @@ const rulesForCache = `-- name: RulesForCache :many
 SELECT r.id AS rule_id,
        r.connection_id,
        c.external_account_id,
+       c.ig_id,
        r.media_id,
        r.keywords,
        r.response_message,
@@ -165,6 +166,7 @@ type RulesForCacheRow struct {
 	RuleID            uuid.UUID `json:"rule_id"`
 	ConnectionID      uuid.UUID `json:"connection_id"`
 	ExternalAccountID string    `json:"external_account_id"`
+	IgID              string    `json:"ig_id"`
 	MediaID           *string   `json:"media_id"`
 	Keywords          []string  `json:"keywords"`
 	ResponseMessage   string    `json:"response_message"`
@@ -185,6 +187,7 @@ func (q *Queries) RulesForCache(ctx context.Context) ([]RulesForCacheRow, error)
 			&i.RuleID,
 			&i.ConnectionID,
 			&i.ExternalAccountID,
+			&i.IgID,
 			&i.MediaID,
 			&i.Keywords,
 			&i.ResponseMessage,

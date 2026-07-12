@@ -92,7 +92,7 @@ func (a *API) createRule(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, errorBody("could not create rule"))
 		return
 	}
-	a.cache.AddRule(conn.ExternalAccountID, rule.MediaID, rulecache.Rule{
+	a.cache.AddRule(conn.ExternalAccountID, conn.IgID, rule.MediaID, rulecache.Rule{
 		ID:            rule.ID,
 		ConnectionID:  rule.ConnectionID,
 		Keywords:      rule.Keywords,
@@ -124,7 +124,7 @@ func (a *API) deleteRule(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	a.cache.RemoveRule(conn.ExternalAccountID, id)
+	a.cache.RemoveRule(conn.ExternalAccountID, conn.IgID, id)
 	log.Printf("rule deleted: id=%s", id)
 	w.WriteHeader(http.StatusNoContent)
 }

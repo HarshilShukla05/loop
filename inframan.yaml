@@ -1,0 +1,71 @@
+version: v1
+# immutable — managed by Inframan, do not edit
+application: loop
+# immutable — managed by Inframan, do not edit
+namespace: loop
+services:
+  server:
+    type: web
+    path: server
+    port: 8080
+    domain: lcms.lkms.inframan.cloud
+    path_prefix: /loop-api
+    path_rewrite: /
+    build:
+      method: docker
+      dockerfile: ./Dockerfile
+    connections:
+      DATABASE_URL: postgres/fdf
+    secrets:
+      TOKEN_ENC_KEY: loop-token-enc-key
+      SESSION_SECRET: loop-session-secret
+      META_WEBHOOK_VERIFY_TOKEN: loop-meta-webhook-verify-token
+      META_APP_SECRET: loop-meta-app-secret
+    env:
+      DASHBOARD_URL: "https://lcms.lkms.inframan.cloud"
+      MARKETING_URL: "https://lcms.lkms.inframan.cloud"
+      META_REDIRECT_URI: "https://lcms.lkms.inframan.cloud/loop-api/auth/instagram/callback"
+      GRAPH_API_VERSION: "v23.0"
+      META_APP_ID: "3897649677210395"
+      COOKIE_SECURE: "true"
+      DEV_AUTH: "false"
+      SEND_DRY_RUN: "false"
+      WORKER_COUNT: "10"
+      RATE_LIMIT_PER_HOUR: "750"
+      DB_MAX_CONNS: "25"
+    network:
+      readiness_probe: { path: /healthz, period_seconds: 5, failure_threshold: 3 }
+      liveness_probe: { path: /healthz, period_seconds: 10, failure_threshold: 3 }
+    scaling:
+      type: concurrency
+      min_replicas: 1
+      max_replicas: 3
+      target: 50
+  dashboard:
+    type: web
+    path: dashboard
+    port: 80
+    domain: lcms.lkms.inframan.cloud
+    path_prefix: /loop
+    build:
+      method: docker
+      dockerfile: ./Dockerfile
+    scaling:
+      type: concurrency
+      min_replicas: 1
+      max_replicas: 3
+      target: 100
+  landing_page:
+    type: web
+    path: landing_page
+    port: 80
+    domain: lcms.lkms.inframan.cloud
+    path_prefix: /loop-landing
+    build:
+      method: docker
+      dockerfile: ./Dockerfile
+    scaling:
+      type: concurrency
+      min_replicas: 0
+      max_replicas: 2
+      target: 100

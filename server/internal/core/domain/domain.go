@@ -7,7 +7,8 @@ const PlatformInstagram = "instagram"
 // ConnectedAccount is what an OAuth flow yields for any platform.
 type ConnectedAccount struct {
 	Platform       string
-	ExternalID     string
+	ExternalID     string // OAuth token-exchange user_id
+	IgID           string // IG professional-account id (/me user_id) — webhook entry.id
 	Username       string
 	AccessToken    string
 	TokenExpiresAt *time.Time

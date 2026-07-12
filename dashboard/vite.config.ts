@@ -7,6 +7,7 @@ const apiTarget = 'http://localhost:8080'
 const apiPaths = ['/auth', '/me', '/media', '/rules', '/healthz', '/webhooks', '/config']
 
 export default defineConfig({
+  base: process.env.VITE_BASE_PATH || '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

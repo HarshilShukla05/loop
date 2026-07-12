@@ -44,6 +44,7 @@ WHERE id = $1;
 SELECT r.id AS rule_id,
        r.connection_id,
        c.external_account_id,
+       c.ig_id,
        r.media_id,
        r.keywords,
        r.response_message,

@@ -51,9 +51,9 @@ type ruleService interface {
 
 // ruleCache keeps the in-memory matcher in sync with rule changes.
 type ruleCache interface {
-	AddRule(externalAccountID string, mediaID *string, r rulecache.Rule)
-	RemoveRule(externalAccountID string, ruleID uuid.UUID)
-	RemoveAccount(externalAccountID string)
+	AddRule(externalAccountID, igID string, mediaID *string, r rulecache.Rule)
+	RemoveRule(externalAccountID, igID string, ruleID uuid.UUID)
+	RemoveAccount(externalAccountID, igID string)
 	Match(e domain.EngagementEvent) (rulecache.Match, bool)
 }
 

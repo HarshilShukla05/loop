@@ -13,10 +13,10 @@ import (
 )
 
 const connectionByExternal = `-- name: ConnectionByExternal :one
-SELECT id, user_id, platform, external_account_id, username, access_token_enc, token_expires_at, scopes, status, subscription_status, subscribed_fields, last_refreshed_at, created_at, updated_at
+SELECT id, user_id, platform, external_account_id, username, access_token_enc, token_expires_at, scopes, status, subscription_status, subscribed_fields, last_refreshed_at, created_at, updated_at, ig_id
 FROM connections
 WHERE platform = $1
-  AND external_account_id = $2
+  AND (external_account_id = $2 OR ig_id = $2)
 `
 
 type ConnectionByExternalParams struct {
@@ -24,6 +24,8 @@ type ConnectionByExternalParams struct {
 	ExternalAccountID string `json:"external_account_id"`
 }
 
+// Resolves by either id: external_account_id (OAuth user_id) or ig_id (the
+// professional-account id the webhook carries). $2 is always a real non-empty id.
 func (q *Queries) ConnectionByExternal(ctx context.Context, arg ConnectionByExternalParams) (Connection, error) {
 	row := q.db.QueryRow(ctx, connectionByExternal, arg.Platform, arg.ExternalAccountID)
 	var i Connection
@@ -42,12 +44,13 @@ func (q *Queries) ConnectionByExternal(ctx context.Context, arg ConnectionByExte
 		&i.LastRefreshedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.IgID,
 	)
 	return i, err
 }
 
 const connectionByUser = `-- name: ConnectionByUser :one
-SELECT id, user_id, platform, external_account_id, username, access_token_enc, token_expires_at, scopes, status, subscription_status, subscribed_fields, last_refreshed_at, created_at, updated_at
+SELECT id, user_id, platform, external_account_id, username, access_token_enc, token_expires_at, scopes, status, subscription_status, subscribed_fields, last_refreshed_at, created_at, updated_at, ig_id
 FROM connections
 WHERE user_id = $1
 ORDER BY created_at
@@ -72,25 +75,27 @@ func (q *Queries) ConnectionByUser(ctx context.Context, userID uuid.UUID) (Conne
 		&i.LastRefreshedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.IgID,
 	)
 	return i, err
 }
 
 const createConnection = `-- name: CreateConnection :one
 INSERT INTO connections (
-    user_id, platform, external_account_id, username,
+    user_id, platform, external_account_id, ig_id, username,
     access_token_enc, token_expires_at, scopes,
     status, subscription_status, subscribed_fields
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
 )
-RETURNING id, user_id, platform, external_account_id, username, access_token_enc, token_expires_at, scopes, status, subscription_status, subscribed_fields, last_refreshed_at, created_at, updated_at
+RETURNING id, user_id, platform, external_account_id, username, access_token_enc, token_expires_at, scopes, status, subscription_status, subscribed_fields, last_refreshed_at, created_at, updated_at, ig_id
 `
 
 type CreateConnectionParams struct {
 	UserID             uuid.UUID  `json:"user_id"`
 	Platform           string     `json:"platform"`
 	ExternalAccountID  string     `json:"external_account_id"`
+	IgID               string     `json:"ig_id"`
 	Username           string     `json:"username"`
 	AccessTokenEnc     string     `json:"access_token_enc"`
 	TokenExpiresAt     *time.Time `json:"token_expires_at"`
@@ -105,6 +110,7 @@ func (q *Queries) CreateConnection(ctx context.Context, arg CreateConnectionPara
 		arg.UserID,
 		arg.Platform,
 		arg.ExternalAccountID,
+		arg.IgID,
 		arg.Username,
 		arg.AccessTokenEnc,
 		arg.TokenExpiresAt,
@@ -129,6 +135,7 @@ func (q *Queries) CreateConnection(ctx context.Context, arg CreateConnectionPara
 		&i.LastRefreshedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.IgID,
 	)
 	return i, err
 }
@@ -159,10 +166,11 @@ SET username         = $2,
     token_expires_at = $4,
     scopes           = $5,
     status           = $6,
+    ig_id            = $7,
     last_refreshed_at = now(),
     updated_at       = now()
 WHERE id = $1
-RETURNING id, user_id, platform, external_account_id, username, access_token_enc, token_expires_at, scopes, status, subscription_status, subscribed_fields, last_refreshed_at, created_at, updated_at
+RETURNING id, user_id, platform, external_account_id, username, access_token_enc, token_expires_at, scopes, status, subscription_status, subscribed_fields, last_refreshed_at, created_at, updated_at, ig_id
 `
 
 type UpdateConnectionTokensParams struct {
@@ -172,6 +180,7 @@ type UpdateConnectionTokensParams struct {
 	TokenExpiresAt *time.Time `json:"token_expires_at"`
 	Scopes         []string   `json:"scopes"`
 	Status         string     `json:"status"`
+	IgID           string     `json:"ig_id"`
 }
 
 func (q *Queries) UpdateConnectionTokens(ctx context.Context, arg UpdateConnectionTokensParams) (Connection, error) {
@@ -182,6 +191,7 @@ func (q *Queries) UpdateConnectionTokens(ctx context.Context, arg UpdateConnecti
 		arg.TokenExpiresAt,
 		arg.Scopes,
 		arg.Status,
+		arg.IgID,
 	)
 	var i Connection
 	err := row.Scan(
@@ -199,6 +209,7 @@ func (q *Queries) UpdateConnectionTokens(ctx context.Context, arg UpdateConnecti
 		&i.LastRefreshedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.IgID,
 	)
 	return i, err
 }

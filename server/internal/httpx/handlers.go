@@ -74,9 +74,9 @@ func (a *API) deleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	externalID := ""
+	externalID, igID := "", ""
 	if conn, err := a.accounts.Account(r.Context(), userID); err == nil {
-		externalID = conn.ExternalAccountID
+		externalID, igID = conn.ExternalAccountID, conn.IgID
 		// Unsubscribe from Meta while we still hold a usable token; best-effort.
 		if account, aerr := a.accounts.Authorized(r.Context(), userID); aerr == nil {
 			if uerr := a.connector.Unsubscribe(r.Context(), account); uerr != nil {
@@ -91,7 +91,7 @@ func (a *API) deleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if externalID != "" {
-		a.cache.RemoveAccount(externalID)
+		a.cache.RemoveAccount(externalID, igID)
 	}
 	a.clearSession(w)
 	w.WriteHeader(http.StatusNoContent)

@@ -14,7 +14,7 @@ async function enableMocking() {
 enableMocking().then(() => {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.VITE_BASE_PATH || "/"}>
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />

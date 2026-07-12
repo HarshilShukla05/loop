@@ -12,6 +12,8 @@ import (
 
 type Querier interface {
 	ClaimDMJob(ctx context.Context) (DmOutbox, error)
+	// Resolves by either id: external_account_id (OAuth user_id) or ig_id (the
+	// professional-account id the webhook carries). $2 is always a real non-empty id.
 	ConnectionByExternal(ctx context.Context, arg ConnectionByExternalParams) (Connection, error)
 	ConnectionByUser(ctx context.Context, userID uuid.UUID) (Connection, error)
 	CreateConnection(ctx context.Context, arg CreateConnectionParams) (Connection, error)

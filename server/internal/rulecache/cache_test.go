@@ -18,7 +18,7 @@ func newTestCache() *Cache {
 
 func TestMatchAnyComment(t *testing.T) {
 	c := newTestCache()
-	c.AddRule("acct", nil, Rule{ID: uuid.New(), Keywords: nil, Body: "hi"})
+	c.AddRule("acct", "",nil, Rule{ID: uuid.New(), Keywords: nil, Body: "hi"})
 	if _, ok := c.Match(ev("acct", "m1", "literally anything")); !ok {
 		t.Fatal("empty keywords (any comment) should match")
 	}
@@ -26,7 +26,7 @@ func TestMatchAnyComment(t *testing.T) {
 
 func TestMatchKeywordCaseInsensitive(t *testing.T) {
 	c := newTestCache()
-	c.AddRule("acct", nil, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "x"})
+	c.AddRule("acct", "",nil, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "x"})
 	if _, ok := c.Match(ev("acct", "m1", "send the LINK plz")); !ok {
 		t.Fatal("should match case-insensitively")
 	}
@@ -38,7 +38,7 @@ func TestMatchKeywordCaseInsensitive(t *testing.T) {
 func TestMatchUppercaseKeyword(t *testing.T) {
 	c := newTestCache()
 	// keyword typed in uppercase must still match lowercase comment text
-	c.AddRule("acct", nil, Rule{ID: uuid.New(), Keywords: []string{"LINK"}, Body: "x"})
+	c.AddRule("acct", "",nil, Rule{ID: uuid.New(), Keywords: []string{"LINK"}, Body: "x"})
 	if _, ok := c.Match(ev("acct", "m1", "drop the link")); !ok {
 		t.Fatal("uppercase keyword should match lowercased comment text")
 	}
@@ -47,9 +47,9 @@ func TestMatchUppercaseKeyword(t *testing.T) {
 func TestMediaSpecificBeatsAllPosts(t *testing.T) {
 	c := newTestCache()
 	mid := "m1"
-	c.AddRule("acct", nil, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "all"})
+	c.AddRule("acct", "",nil, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "all"})
 	specific := uuid.New()
-	c.AddRule("acct", &mid, Rule{ID: specific, Keywords: []string{"link"}, Body: "one"})
+	c.AddRule("acct", "",&mid, Rule{ID: specific, Keywords: []string{"link"}, Body: "one"})
 
 	m, ok := c.Match(ev("acct", "m1", "link"))
 	if !ok || m.RuleID != specific {
@@ -60,9 +60,9 @@ func TestMediaSpecificBeatsAllPosts(t *testing.T) {
 func TestFallbackToAllPosts(t *testing.T) {
 	c := newTestCache()
 	other := "other"
-	c.AddRule("acct", &other, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "one"})
+	c.AddRule("acct", "",&other, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "one"})
 	all := uuid.New()
-	c.AddRule("acct", nil, Rule{ID: all, Keywords: []string{"link"}, Body: "all"})
+	c.AddRule("acct", "",nil, Rule{ID: all, Keywords: []string{"link"}, Body: "all"})
 
 	m, ok := c.Match(ev("acct", "m1", "link")) // m1 != other
 	if !ok || m.RuleID != all {
@@ -74,13 +74,41 @@ func TestRemoveRuleNoStale(t *testing.T) {
 	c := newTestCache()
 	id := uuid.New()
 	mid := "m1"
-	c.AddRule("acct", &mid, Rule{ID: id, Keywords: []string{"link"}, Body: "x"})
+	c.AddRule("acct", "",&mid, Rule{ID: id, Keywords: []string{"link"}, Body: "x"})
 	if _, ok := c.Match(ev("acct", "m1", "link")); !ok {
 		t.Fatal("precondition: should match")
 	}
-	c.RemoveRule("acct", id)
+	c.RemoveRule("acct", "", id)
 	if _, ok := c.Match(ev("acct", "m1", "link")); ok {
 		t.Fatal("after remove the rule must not match (no stale)")
+	}
+}
+
+func TestDualIndexMatchesByEitherId(t *testing.T) {
+	c := newTestCache()
+	// external id (OAuth user_id) and ig id (webhook entry.id) differ; one rule
+	// registered under both must match whichever id the inbound event carries.
+	c.AddRule("26918", "17841", nil, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "x"})
+	if _, ok := c.Match(ev("26918", "m1", "send the link")); !ok {
+		t.Fatal("should match by external id")
+	}
+	if _, ok := c.Match(ev("17841", "m1", "send the link")); !ok {
+		t.Fatal("should match by ig id (webhook entry.id)")
+	}
+	if c.Count() != 1 {
+		t.Fatalf("count = %d, want 1 (dual index must not double-count)", c.Count())
+	}
+}
+
+func TestRemoveAccountClearsBothIds(t *testing.T) {
+	c := newTestCache()
+	c.AddRule("26918", "17841", nil, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "x"})
+	c.RemoveAccount("26918", "17841")
+	if _, ok := c.Match(ev("26918", "m1", "link")); ok {
+		t.Fatal("external-id key must be evicted")
+	}
+	if _, ok := c.Match(ev("17841", "m1", "link")); ok {
+		t.Fatal("ig-id key must be evicted")
 	}
 }
 
@@ -94,9 +122,9 @@ func TestNoMatchUnknownAccount(t *testing.T) {
 func TestRemoveAccount(t *testing.T) {
 	c := newTestCache()
 	mid := "m1"
-	c.AddRule("acct", &mid, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "x"})
-	c.AddRule("acct", nil, Rule{ID: uuid.New(), Keywords: nil, Body: "y"})
-	c.RemoveAccount("acct")
+	c.AddRule("acct", "",&mid, Rule{ID: uuid.New(), Keywords: []string{"link"}, Body: "x"})
+	c.AddRule("acct", "",nil, Rule{ID: uuid.New(), Keywords: nil, Body: "y"})
+	c.RemoveAccount("acct", "")
 	if _, ok := c.Match(ev("acct", "m1", "link")); ok {
 		t.Fatal("every rule for the deleted account must be evicted")
 	}

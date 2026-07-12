@@ -5,6 +5,7 @@ const nextConfig = {
   // runtime needed, which is what Cloudflare Pages serves directly.
   output: "export",
   images: { unoptimized: true },
+  basePath: process.env.NEXT_BASE_PATH || "",
 };
 
 module.exports = nextConfig;

@@ -110,9 +110,10 @@ func (c *Connector) ExchangeCode(ctx context.Context, code string) (domain.Conne
 
 	var me struct {
 		Username string `json:"username"`
+		UserID   string `json:"user_id"` // IG professional-account id — webhook entry.id
 	}
 	meURL := graphHost + "/me?" + url.Values{
-		"fields":       {"username"},
+		"fields":       {"username,user_id"},
 		"access_token": {long.AccessToken},
 	}.Encode()
 	if err := c.getJSON(ctx, meURL, &me); err != nil {
@@ -121,11 +122,12 @@ func (c *Connector) ExchangeCode(ctx context.Context, code string) (domain.Conne
 
 	externalID := strconv.FormatInt(short.UserID, 10)
 	expiresAt := time.Now().Add(time.Duration(long.ExpiresIn) * time.Second)
-	log.Printf("instagram: connected @%s (id %s), token expires %s", me.Username, externalID, expiresAt.Format(time.RFC3339))
+	log.Printf("instagram: connected @%s (id %s, ig_id %s), token expires %s", me.Username, externalID, me.UserID, expiresAt.Format(time.RFC3339))
 
 	return domain.ConnectedAccount{
 		Platform:       domain.PlatformInstagram,
 		ExternalID:     externalID,
+		IgID:           me.UserID,
 		Username:       me.Username,
 		AccessToken:    long.AccessToken,
 		TokenExpiresAt: &expiresAt,

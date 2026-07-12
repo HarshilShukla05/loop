@@ -62,12 +62,20 @@ func (c *Cache) Load(ctx context.Context) error {
 	}
 	index := make(map[string]*accountRules)
 	for _, row := range rows {
-		ar := index[row.ExternalAccountID]
+		keys := keysOf(row.ExternalAccountID, row.IgID)
+		var ar *accountRules
+		for _, k := range keys {
+			if ar = index[k]; ar != nil {
+				break
+			}
+		}
 		if ar == nil {
 			ar = newAccountRules()
-			index[row.ExternalAccountID] = ar
 		}
 		ar.add(row.MediaID, ruleFromRow(row))
+		for _, k := range keys {
+			index[k] = ar
+		}
 	}
 	c.mu.Lock()
 	c.byAccount = index
@@ -76,23 +84,27 @@ func (c *Cache) Load(ctx context.Context) error {
 }
 
 // AddRule registers a freshly created rule. Call AFTER the DB insert commits.
-func (c *Cache) AddRule(externalAccountID string, mediaID *string, r Rule) {
+// It is indexed under both the account's external id and ig id (the webhook
+// entry.id), which point at the same rule set.
+func (c *Cache) AddRule(externalAccountID, igID string, mediaID *string, r Rule) {
 	r.Keywords = lowerAll(r.Keywords) // Match compares against lowercased text
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	ar := c.byAccount[externalAccountID]
+	keys := keysOf(externalAccountID, igID)
+	ar := c.get(keys)
 	if ar == nil {
 		ar = newAccountRules()
-		c.byAccount[externalAccountID] = ar
 	}
 	ar.add(mediaID, r)
+	c.bind(ar, keys)
 }
 
 // RemoveRule drops a deleted rule by id. Call AFTER the DB delete commits.
-func (c *Cache) RemoveRule(externalAccountID string, ruleID uuid.UUID) {
+func (c *Cache) RemoveRule(externalAccountID, igID string, ruleID uuid.UUID) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	ar := c.byAccount[externalAccountID]
+	keys := keysOf(externalAccountID, igID)
+	ar := c.get(keys)
 	if ar == nil {
 		return
 	}
@@ -106,17 +118,47 @@ func (c *Cache) RemoveRule(externalAccountID string, ruleID uuid.UUID) {
 		}
 	}
 	if len(ar.allPosts) == 0 && len(ar.byMedia) == 0 {
-		delete(c.byAccount, externalAccountID)
+		for _, k := range keys {
+			delete(c.byAccount, k)
+		}
 	}
 }
 
 // RemoveAccount evicts every rule for an account — used when the account is
 // deleted, so its rules stop matching webhooks immediately rather than at the
 // next restart.
-func (c *Cache) RemoveAccount(externalAccountID string) {
+func (c *Cache) RemoveAccount(externalAccountID, igID string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	delete(c.byAccount, externalAccountID)
+	for _, k := range keysOf(externalAccountID, igID) {
+		delete(c.byAccount, k)
+	}
+}
+
+// keysOf is the set of cache keys an account is indexed under: its external id
+// plus its ig id (the webhook entry.id) when present and distinct. Both keys map
+// to the same *accountRules, so a Match by either id hits.
+func keysOf(externalAccountID, igID string) []string {
+	if igID == "" || igID == externalAccountID {
+		return []string{externalAccountID}
+	}
+	return []string{externalAccountID, igID}
+}
+
+// get returns the account's rules via any of its keys; bind points all keys at ar.
+func (c *Cache) get(keys []string) *accountRules {
+	for _, k := range keys {
+		if ar := c.byAccount[k]; ar != nil {
+			return ar
+		}
+	}
+	return nil
+}
+
+func (c *Cache) bind(ar *accountRules, keys []string) {
+	for _, k := range keys {
+		c.byAccount[k] = ar
+	}
 }
 
 func (c *Cache) Match(e domain.EngagementEvent) (Match, bool) {
@@ -142,12 +184,19 @@ func (c *Cache) Match(e domain.EngagementEvent) (Match, bool) {
 	return Match{}, false
 }
 
-// Count returns the total number of cached rules (for boot logging).
+// Count returns the total number of cached rules (for boot logging). Each
+// account is indexed under two keys pointing at the same rules, so dedupe by
+// pointer to avoid double-counting.
 func (c *Cache) Count() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
+	seen := make(map[*accountRules]bool)
 	n := 0
 	for _, ar := range c.byAccount {
+		if seen[ar] {
+			continue
+		}
+		seen[ar] = true
 		n += len(ar.allPosts)
 		for _, rules := range ar.byMedia {
 			n += len(rules)

@@ -1,0 +1,23 @@
+# systemd unit for the Loop API/worker binary. Install to
+# /etc/systemd/system/loop.service, then: systemctl enable --now loop
+[Unit]
+Description=Loop API + outbox worker
+After=network-online.target postgresql.service
+Wants=network-online.target postgresql.service
+
+[Service]
+Type=simple
+User=loop
+WorkingDirectory=/opt/loop
+EnvironmentFile=/opt/loop/.env
+ExecStart=/opt/loop/loop-server
+Restart=on-failure
+RestartSec=3
+# Hardening (the binary only needs its own dir + outbound network + local PG).
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/loop
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
